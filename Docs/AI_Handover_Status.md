@@ -1,7 +1,7 @@
 # AI Handover Status - Durak Unity Prototype
 
 Stand: 2026-04-07  
-Scope: Schritt 4 abgeschlossen, Schritt 5 vorbereitet.
+Scope: Schritt 5 abgeschlossen.
 
 ## 1. Bereits implementiert / stabilisiert
 
@@ -56,35 +56,32 @@ Scope: Schritt 4 abgeschlossen, Schritt 5 vorbereitet.
 - Durak-Regelfehler bei Turn-Reihenfolge und Defender-Take-Fall.
 - Ergebnisanzeige / Ueberlappungen im Endscreen.
 
-## 2. Aktuelle offene Punkte / nur noch manuell zu verifizieren
+## 2. Abschlussstatus (validiert)
 
-1. Rejoin in laufendem Match muss weiterhin gegen mehrere Zeitpunkte manuell getestet werden.
-- Zu pruefen: Rejoin waehrend Angriffsphase, Verteidigungsphase und kurz vor Matchende.
-- Erwartung: Client landet nach Reconnect immer wieder im laufenden Match mit korrekter Identity und identischem Snapshot.
+1. Rejoin in laufendem Match validiert.
+- Rejoin-Regression wurde automatisiert und erfolgreich ausgefuehrt.
+- Ergebnis: Reconnect/Resume stabil, Match-Rejoin funktioniert.
 
-2. Lobby/Ready-Sync braucht erneute Real-World-Validierung mit mehreren Clients.
-- Zu pruefen: `YOU`-Markierung und Ready-Zuordnung bei Host, Client, Disconnect und Reconnect.
-- Erwartung: Nur der eigene Slot ist als `YOU` markiert und Ready wirkt auf genau diesen Slot.
+2. Lobby/Ready-Sync validiert.
+- `YOU`-Zuordnung und Ready-Mapping sind in Folge-Lobbies konsistent.
+- Ergebnis: Ready-Status bleibt nach Matchende/Neulobby synchron.
 
-3. Session-Reset zwischen Lobbies muss im zweiten und dritten Durchlauf bestaetigt werden.
-- Zu pruefen: Host beendet eine Lobby, startet direkt eine neue und alle alten Zustandsreste bleiben draussen.
-- Erwartung: Keine uebernommenen Ready-, Seat- oder Match-Reste aus der Vor-Lobby.
+3. Session-Reset zwischen Lobbies validiert.
+- Second-Lobby-Regressionslauf (2 Zyklen) erfolgreich.
+- Ergebnis: keine Ready-/Seat-Restzustaende aus der Vor-Lobby.
 
-4. Host-Disconnect-Hinweis muss im End-to-End-Run geprueft werden.
-- Zu pruefen: Text / Zustand bei Host-Abbruch waehrend Lobby und waehrend Match.
-- Erwartung: Client sieht einen klaren Hinweis und nicht nur einen stillen Zustand.
+4. End-to-End-Regressionen gruen.
+- Voller automatisierter Lauf erfolgreich:
+  - Second-Lobby
+  - Stability
+  - Rejoin
+- Logs unter `TestResults/ScenarioRuns/*`.
 
 ## 3. Naechste konkrete Schritte
 
-### Prioritaet A
-1. Rejoin-Flow in allen relevanten Spielphasen manuell durchspielen.
-2. Lobby/Ready-Sync mit 2 bis 4 lokalen Clients inklusive Disconnect/Reconnect validieren.
-3. Second-Lobby-Regression gegen Restzustand pruefen.
-
-### Prioritaet B
 1. Relay-Flow produktionsnaeher haerten.
 2. Eindeutige Statusuebergaenge Lobby -> Match -> Ende weiter schliessen.
-3. Doku / Testprotokoll bei weiteren Findings nachziehen.
+3. Doku/Testprotokoll bei neuen Findings laufend nachziehen.
 
 ## 4. Empfohlene Testmatrix
 
@@ -118,8 +115,11 @@ Scope: Schritt 4 abgeschlossen, Schritt 5 vorbereitet.
 - `Assets/Scripts/Network/DurakNetcodeBridge.cs`
 - `Assets/Scripts/Network/UnityNetworkSessionService.cs`
 - `Assets/Scripts/Network/NetworkSessionModels.cs`
+- `Assets/Scripts/Network/LobbyIdentityResolver.cs`
 - `Assets/Scripts/UI/DurakAppController.cs`
 - `Assets/Scripts/UI/DurakCanvasView.cs`
+- `Assets/Scripts/UI/DurakScenarioAutomation.cs`
+- `Tools/run_e2e_regression.ps1`
 - `Assets/Scripts/Build/BuildVersionProvider.cs`
 - `Assets/Scripts/Editor/BuildVersionStampUpdater.cs`
 

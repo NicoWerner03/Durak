@@ -79,3 +79,21 @@ Run Unity Test Runner EditMode suite:
 - `BotStrategy_AlwaysReturnsLegalIntent`
 - `InitializeMatch_CopiesPlayerIdentityFromSeats`
 - `LobbyIdentityResolverTests` (complete fixture)
+
+## Automated E2E Run (validated)
+
+Command:
+
+- `C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -ExecutionPolicy Bypass -File C:\_dev\DurakGameCodex\Tools\run_e2e_regression.ps1 -ExePath C:\_dev\DurakGameCodex\Builds\ScenarioRunner\DurakGameCodex.exe -StabilityCycles 1 -TimeoutSeconds 420`
+
+Validated on `2026-04-07`:
+
+- second-lobby: passed
+- stability: passed
+- rejoin: passed
+
+Logs:
+
+- `C:\_dev\DurakGameCodex\TestResults\ScenarioRuns\second-lobby`
+- `C:\_dev\DurakGameCodex\TestResults\ScenarioRuns\stability`
+- `C:\_dev\DurakGameCodex\TestResults\ScenarioRuns\rejoin`
