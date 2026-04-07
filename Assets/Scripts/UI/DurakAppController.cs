@@ -102,6 +102,7 @@ namespace DurakGame.UI
         private void Update()
         {
             if (_isOnline && !_isHost && _screen == AppScreen.Lobby && _netcodeBridge != null &&
+                IsClientConnectionHealthy() &&
                 Time.unscaledTime >= _nextMatchResumeRequestAt)
             {
                 _netcodeBridge.RequestMatchResumeFromServer();
@@ -602,6 +603,13 @@ namespace DurakGame.UI
                 _netcodeBridge.ServerIntentHandler = HandleServerIntent;
                 _netcodeBridge.ServerSnapshotProvider = BuildServerSnapshot;
 
+                if (!info.IsConnected)
+                {
+                    _sessionService.LeaveSession();
+                    ResetToMenuState("Host failed to connect.");
+                    return;
+                }
+
                 _isOnline = true;
                 _isHost = true;
                 _screen = AppScreen.Lobby;
@@ -609,11 +617,7 @@ namespace DurakGame.UI
                 _lobbyState = new LobbyStateSnapshot();
                 _netcodeBridge.SetLocalReady(false);
                 _nextMatchResumeRequestAt = 0f;
-                if (!info.IsConnected)
-                {
-                    _status = "Host failed to connect.";
-                }
-                else if (!string.IsNullOrEmpty(info.JoinCode) &&
+                if (!string.IsNullOrEmpty(info.JoinCode) &&
                          info.JoinCode.StartsWith("DIRECT:", StringComparison.OrdinalIgnoreCase))
                 {
                     _status = "Host started in Direct mode (no Relay). Share join target from lobby.";
@@ -625,13 +629,8 @@ namespace DurakGame.UI
             }
             catch (Exception exception)
             {
-                _status = "Host error: " + exception.Message;
-                _screen = AppScreen.Menu;
-                _isOnline = false;
-                _isHost = false;
-                _localLobbyReady = false;
-                _lobbyState = new LobbyStateSnapshot();
-                _nextMatchResumeRequestAt = 0f;
+                _sessionService.LeaveSession();
+                ResetToMenuState("Host error: " + exception.Message);
             }
         }
 
@@ -643,6 +642,13 @@ namespace DurakGame.UI
                 var info = await _sessionService.JoinSessionAsync(_joinCodeInput);
                 _netcodeBridge.Initialize(_sessionService.NetworkManager);
 
+                if (!info.IsConnected)
+                {
+                    _sessionService.LeaveSession();
+                    ResetToMenuState("Client failed to connect.");
+                    return;
+                }
+
                 _isOnline = true;
                 _isHost = false;
                 _screen = AppScreen.Lobby;
@@ -650,12 +656,13 @@ namespace DurakGame.UI
                 _lobbyState = new LobbyStateSnapshot();
                 _netcodeBridge.SetLocalReady(false);
                 ScheduleMatchResumeRequests();
-                _netcodeBridge.RequestMatchResumeFromServer();
-                if (!info.IsConnected)
+                if (IsClientConnectionHealthy())
                 {
-                    _status = "Client failed to connect.";
+                    _netcodeBridge.RequestMatchResumeFromServer();
+                    _netcodeBridge.RequestStateSnapshotFromServer();
                 }
-                else if (!string.IsNullOrEmpty(info.JoinCode) &&
+
+                if (!string.IsNullOrEmpty(info.JoinCode) &&
                          info.JoinCode.StartsWith("DIRECT:", StringComparison.OrdinalIgnoreCase))
                 {
                     _status = "Connected in Direct mode. Waiting for host to start.";
@@ -667,13 +674,8 @@ namespace DurakGame.UI
             }
             catch (Exception exception)
             {
-                _status = "Join error: " + exception.Message;
-                _screen = AppScreen.Menu;
-                _isOnline = false;
-                _isHost = false;
-                _localLobbyReady = false;
-                _lobbyState = new LobbyStateSnapshot();
-                _nextMatchResumeRequestAt = 0f;
+                _sessionService.LeaveSession();
+                ResetToMenuState("Join error: " + exception.Message);
             }
         }
 
@@ -748,21 +750,7 @@ namespace DurakGame.UI
                 _sessionService.LeaveSession();
             }
 
-            _netcodeBridge.ResetRuntimeState();
-            _netcodeBridge.ServerIntentHandler = HandleServerIntent;
-            _netcodeBridge.ServerSnapshotProvider = BuildServerSnapshot;
-
-            _engine = new DurakGameRulesEngine();
-            _screen = AppScreen.Menu;
-            _isOnline = false;
-            _isHost = false;
-            _localPlayerId = 0;
-            _status = "Ready.";
-            _lastAuthoritativeSequence = 0;
-            _awaitingResync = false;
-            _localLobbyReady = false;
-            _lobbyState = new LobbyStateSnapshot();
-            _nextMatchResumeRequestAt = 0f;
+            ResetToMenuState("Ready.");
         }
 
         private bool HandleServerIntent(PlayerIntent intent)
@@ -843,6 +831,8 @@ namespace DurakGame.UI
                 return;
             }
 
+            var previousPhase = _engine != null && _engine.State != null ? _engine.State.Phase : GamePhase.Lobby;
+            var wasAwaitingResync = _awaitingResync;
             _engine.RestoreSnapshot(snapshot);
             _lastAuthoritativeSequence = snapshot.Sequence;
             _awaitingResync = false;
@@ -855,7 +845,10 @@ namespace DurakGame.UI
 
             if (_engine.State.Phase == GamePhase.Completed)
             {
-                _status = "Match finished.";
+                if (previousPhase != GamePhase.Completed || _screen != AppScreen.Match)
+                {
+                    _status = "Match finished.";
+                }
             }
             else if (_screen == AppScreen.Lobby && _engine.State.Phase != GamePhase.Lobby && !switchedFromLobby)
             {
@@ -865,7 +858,7 @@ namespace DurakGame.UI
             {
                 _status = "Rejoined running match as " + FormatPlayer(_localPlayerId) + ".";
             }
-            else
+            else if (wasAwaitingResync)
             {
                 _status = "Resynced with host.";
             }
@@ -886,17 +879,44 @@ namespace DurakGame.UI
                 return;
             }
 
+            var players = _lobbyState != null && _lobbyState.Players != null ? _lobbyState.Players : new List<LobbyPlayerInfo>();
+            var connected = players.Count;
+            var ready = 0;
+            for (var i = 0; i < players.Count; i++)
+            {
+                if (players[i].IsReady)
+                {
+                    ready += 1;
+                }
+            }
+
+            var allReady = connected > 0 && ready == connected;
             if (_isHost)
             {
-                _status = CanStartOnlineMatch
-                    ? "All players ready. Host can start the match."
-                    : "Lobby updated. Waiting for all players to become READY.";
+                if (connected < 2)
+                {
+                    _status = "Waiting for players. Connected: " + connected;
+                }
+                else if (allReady && CanStartOnlineMatch)
+                {
+                    _status = "All players READY (" + ready + "/" + connected + "). Host can start the match.";
+                }
+                else
+                {
+                    _status = "Lobby updated (" + ready + "/" + connected + " READY).";
+                }
             }
             else
             {
-                _status = "Lobby updated. Waiting for host to start.";
-                _netcodeBridge.RequestMatchResumeFromServer();
-                _netcodeBridge.RequestStateSnapshotFromServer();
+                _status = allReady
+                    ? "All players READY. Waiting for host to start."
+                    : "Lobby updated (" + ready + "/" + connected + " READY). Waiting for host.";
+
+                if (IsClientConnectionHealthy())
+                {
+                    _netcodeBridge.RequestMatchResumeFromServer();
+                    _netcodeBridge.RequestStateSnapshotFromServer();
+                }
             }
         }
 
@@ -932,18 +952,7 @@ namespace DurakGame.UI
             }
 
             _sessionService.LeaveSession();
-            _netcodeBridge.ResetRuntimeState();
-            _engine = new DurakGameRulesEngine();
-            _screen = AppScreen.Menu;
-            _isOnline = false;
-            _isHost = false;
-            _localPlayerId = 0;
-            _status = reason;
-            _lastAuthoritativeSequence = 0;
-            _awaitingResync = false;
-            _localLobbyReady = false;
-            _lobbyState = new LobbyStateSnapshot();
-            _nextMatchResumeRequestAt = 0f;
+            ResetToMenuState(reason);
         }
 
         private void SubmitIntent(PlayerIntent intent)
@@ -1218,6 +1227,36 @@ namespace DurakGame.UI
             }
 
             return localClientId;
+        }
+
+        private bool IsClientConnectionHealthy()
+        {
+            if (_sessionService == null || _sessionService.NetworkManager == null)
+            {
+                return false;
+            }
+
+            var networkManager = _sessionService.NetworkManager;
+            return networkManager.IsClient && networkManager.IsConnectedClient;
+        }
+
+        private void ResetToMenuState(string statusMessage)
+        {
+            _netcodeBridge.ResetRuntimeState();
+            _netcodeBridge.ServerIntentHandler = HandleServerIntent;
+            _netcodeBridge.ServerSnapshotProvider = BuildServerSnapshot;
+
+            _engine = new DurakGameRulesEngine();
+            _screen = AppScreen.Menu;
+            _isOnline = false;
+            _isHost = false;
+            _localPlayerId = 0;
+            _status = string.IsNullOrWhiteSpace(statusMessage) ? "Ready." : statusMessage;
+            _lastAuthoritativeSequence = 0;
+            _awaitingResync = false;
+            _localLobbyReady = false;
+            _lobbyState = new LobbyStateSnapshot();
+            _nextMatchResumeRequestAt = 0f;
         }
     }
 }
