@@ -1,0 +1,496 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.3/staging' branch; Version is '6000.3.9f1 (7a9955a4f2fa) revision 8034645'; Using compiler version '194234433'; Build Type 'Release'
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Administrator" at "2026-04-07T18:06:00.6954302Z"
+OS: 'Windows 11  (10.0.26200) Professional' Language: 'de' Physical Memory: 31908 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-04-07T18:06:00Z
+
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\6000.3.9f1\Editor\Unity.exe
+-batchmode
+-nographics
+-projectPath
+C:\_dev\DurakGameCodex
+-runTests
+-testPlatform
+editmode
+-testResults
+C:\_dev\DurakGameCodex\TestResults\editmode-results.xml
+-logFile
+C:\_dev\DurakGameCodex\TestResults\editmode-after-ready-race-fix.log
+Successfully changed project path to: C:\_dev\DurakGameCodex
+C:/_dev/DurakGameCodex
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+Player connection [6068]  Target information:
+
+Player connection [6068]  * "[IP] 172.31.144.1 [Port] 55504 [Flags] 2 [Guid] 4169888780 [EditorId] 4169888780 [Version] 1048832 [Id] WindowsEditor(7,WIN-0G9EOIBTRVN) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [6068]  * "[IP] 192.168.178.21 [Port] 55504 [Flags] 2 [Guid] 4169888780 [EditorId] 4169888780 [Version] 1048832 [Id] WindowsEditor(7,WIN-0G9EOIBTRVN) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [6068] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [6068] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-16036" after 0.2 seconds.
+[Licensing::Module] Licensing is not yet initialized.
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.17.4+4293ba1
+  Session Id:              348d3d8583ad494280ebf854cfe3bad0
+  Correlation Id:          7208b34e4f542c4cecdc2a6360575a38
+  External correlation Id: 2932557335939232826
+  Machine Id:              gTZjywfCKRCrdBNvUIIHhIUE33o=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-Administrator" (connect: 0.00s, validation: 0.00s, handshake: 0.70s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Administrator-notifications" at "2026-04-07T18:06:01.3950095Z"
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: 9072350964704-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.00
+[Licensing::Module] Licensing Background thread has ended after 0.70s
+[Licensing::Module] Licensing is initialized (took 0.29s).
+[Licensing::Client] Successfully resolved entitlement details
+Library Redirect Path: Library/
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Artifact Garbage Collection - Removed 2 unused hashed content files
+Refreshing native plugins compatible for Editor in 0.39 ms, found 0 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.3.9f1 (7a9955a4f2fa)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.3.9f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/_dev/DurakGameCodex/Assets
+Forcing GfxDevice: Null
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+NullGfxDevice:
+    Version:  NULL 1.0 [1.0]
+    Renderer: Null Device
+    Vendor:   Unity Technologies
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.3.9f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.3.9f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.3.9f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56036
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.3.9f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.3.9f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.002371 seconds.
+- Loaded All Assemblies, in  0.277 seconds
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.268 seconds
+Domain Reload Profiling: 544ms
+	BeginReloadAssembly (97ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (17ms)
+	RebuildCommonClasses (24ms)
+	RebuildNativeTypeToScriptingClass (9ms)
+	initialDomainReloadingComplete (33ms)
+	LoadAllAssembliesAndSetupDomain (113ms)
+		LoadAssemblies (78ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (110ms)
+			TypeCache.Refresh (108ms)
+				TypeCache.ScanAssembly (99ms)
+			BuildScriptInfoCaches (0ms)
+			ResolveRequiredComponents (0ms)
+	FinalizeReload (268ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (243ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (33ms)
+			SetLoadedEditorAssemblies (3ms)
+			BeforeProcessingInitializeOnLoad (56ms)
+			ProcessInitializeOnLoadAttributes (103ms)
+			ProcessInitializeOnLoadMethodAttributes (48ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+Package Manager log level set to [2]
+[Package Manager] Restoring resolved packages state from cache
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Registered 72 packages:
+  Packages from [https://packages.unity.com]:
+    com.unity.2d.animation@13.0.4 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.2d.animation@7396d8477ca9)
+    com.unity.2d.aseprite@3.0.1 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.2d.aseprite@809e3a168ff7)
+    com.unity.2d.psdimporter@12.0.1 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.2d.psdimporter@9abe0f7cac7e)
+    com.unity.2d.spriteshape@13.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.2d.spriteshape@0738bab11647)
+    com.unity.2d.tilemap.extras@6.0.1 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.2d.tilemap.extras@3dde84bf3867)
+    com.unity.2d.tooling@1.0.2 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.2d.tooling@249995156768)
+    com.unity.collab-proxy@2.11.3 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.collab-proxy@e566cd3e7623)
+    com.unity.ide.rider@3.0.39 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.ide.rider@4504839d03f7)
+    com.unity.ide.visualstudio@2.0.26 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.ide.visualstudio@a99d56dec63f)
+    com.unity.inputsystem@1.18.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.inputsystem@57d0e36f6123)
+    com.unity.netcode.gameobjects@1.12.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.netcode.gameobjects@61beb9aa5947)
+    com.unity.services.relay@1.1.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.services.relay@910995283dae)
+    com.unity.timeline@1.8.10 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.timeline@7f8b2fb101b6)
+    com.unity.transport@2.2.1 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.transport@ec41260a0877)
+    com.unity.visualscripting@1.9.9 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.visualscripting@191c0d7e3b69)
+    com.unity.burst@1.8.28 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.burst@07790c2d06d9)
+    com.unity.collections@2.6.2 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.collections@aea9d3bd5e19)
+    com.unity.mathematics@1.3.3 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.mathematics@19a9377c4ffa)
+    com.unity.services.qos@1.4.1 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.services.qos@03d4b52d4980)
+    com.unity.services.core@1.16.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.services.core@8ba50f624741)
+    com.unity.nuget.newtonsoft-json@3.2.2 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.nuget.newtonsoft-json@4dfd81071c64)
+    com.unity.services.authentication@3.6.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.services.authentication@862f5b816622)
+    com.unity.nuget.mono-cecil@1.11.6 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff)
+    com.unity.2d.common@12.0.2 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.2d.common@800085e896ad)
+    com.unity.test-framework.performance@3.2.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.test-framework.performance@0840f58e4562)
+    com.unity.searcher@4.9.4 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.searcher@d45a78918735)
+  Built-in packages:
+    com.unity.2d.sprite@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.2d.sprite@d14b9d497a24)
+    com.unity.2d.tilemap@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.2d.tilemap@f011712243ad)
+    com.unity.multiplayer.center@1.0.1 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.multiplayer.center@f01f4ba8d00a)
+    com.unity.render-pipelines.universal@17.3.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.render-pipelines.universal@7327e77c1cc2)
+    com.unity.test-framework@1.6.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.test-framework@0b7a23ab2e1d)
+    com.unity.ugui@2.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.ugui@bb329a87fcdc)
+    com.unity.modules.accessibility@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.accessibility)
+    com.unity.modules.adaptiveperformance@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.adaptiveperformance)
+    com.unity.modules.ai@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.ai)
+    com.unity.modules.androidjni@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.androidjni)
+    com.unity.modules.animation@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.animation)
+    com.unity.modules.assetbundle@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.assetbundle)
+    com.unity.modules.audio@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.audio)
+    com.unity.modules.cloth@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.cloth)
+    com.unity.modules.director@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.director)
+    com.unity.modules.imageconversion@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.imageconversion)
+    com.unity.modules.imgui@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.imgui)
+    com.unity.modules.jsonserialize@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.particlesystem@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.physics)
+    com.unity.modules.physics2d@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.physics2d)
+    com.unity.modules.screencapture@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.screencapture)
+    com.unity.modules.terrain@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.terrain)
+    com.unity.modules.terrainphysics@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.terrainphysics)
+    com.unity.modules.tilemap@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.tilemap)
+    com.unity.modules.ui@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.uielements@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.uielements)
+    com.unity.modules.umbra@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.umbra)
+    com.unity.modules.unityanalytics@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.unityanalytics)
+    com.unity.modules.unitywebrequest@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.unitywebrequest)
+    com.unity.modules.unitywebrequestassetbundle@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.unitywebrequestassetbundle)
+    com.unity.modules.unitywebrequestaudio@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.unitywebrequestaudio)
+    com.unity.modules.unitywebrequesttexture@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.unitywebrequesttexture)
+    com.unity.modules.unitywebrequestwww@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.unitywebrequestwww)
+    com.unity.modules.vectorgraphics@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.vectorgraphics)
+    com.unity.modules.vehicles@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.vehicles)
+    com.unity.modules.video@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.video)
+    com.unity.modules.vr@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.vr)
+    com.unity.modules.wind@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.wind)
+    com.unity.modules.xr@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.xr)
+    com.unity.modules.subsystems@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.subsystems)
+    com.unity.modules.hierarchycore@1.0.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.modules.hierarchycore)
+    com.unity.ext.nunit@2.0.5 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.ext.nunit@d8c07649098d)
+    com.unity.render-pipelines.core@17.3.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.render-pipelines.core@04ab0eefa0c3)
+    com.unity.shadergraph@17.3.0 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.shadergraph@f80b792d4861)
+    com.unity.render-pipelines.universal-config@17.0.3 (location: C:\_dev\DurakGameCodex\Library\PackageCache\com.unity.render-pipelines.universal-config@8dc1aab4af1d)
+[Package Manager] com.unity.services.relay is deprecated: The Relay package is deprecated and will not receive further updates. The SDK is now part of the unified Multiplayer Services package (com.unity.services.multiplayer). Migrate to that package to access ongoing support and improvements.
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.01 seconds
+[ScriptCompilation] Requested script compilation because: Assetdatabase observed changes in script compilation related files
+Starting: C:\Program Files\Unity\Hub\Editor\6000.3.9f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aEDbg.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: C:/_dev/DurakGameCodex
+DisplayProgressbar: Compiling Scripts
+ExitCode: 0 Duration: 2s219ms
+[ 535/1354  0s] WriteResponseFile Library/Bee/artifacts/rsp/4747638433968585886.rsp
+[1030/1354  0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+[1346/1354  1s] Csc Library/Bee/artifacts/1900b0aEDbg.dag/Durak.Runtime.dll (+2 others)
+[1348/1354  0s] ILPostProcess Library/Bee/artifacts/1900b0aEDbg.dag/post-processed/Durak.EditModeTests.dll (+pdb)
+Processing assembly Library/Bee/artifacts/1900b0aEDbg.dag/Durak.EditModeTests.dll, with 135 defines and 271 references
+
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, Unity.Netcode.Editor.CodeGen.INetworkMessageILPP, Unity.Netcode.Editor.CodeGen.INetworkSerializableILPP, Unity.Netcode.Editor.CodeGen.NetworkBehaviourILPP, Unity.Netcode.Editor.CodeGen.RuntimeAccessModifiersILPP, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running Unity.Netcode.Editor.CodeGen.INetworkMessageILPP
+
+running Unity.Netcode.Editor.CodeGen.INetworkSerializableILPP
+
+running Unity.Netcode.Editor.CodeGen.NetworkBehaviourILPP
+
+running Unity.Netcode.Editor.CodeGen.RuntimeAccessModifiersILPP
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[1351/1354  0s] ILPostProcess Library/Bee/artifacts/1900b0aEDbg.dag/post-processed/Durak.Runtime.dll (+pdb)
+Processing assembly Library/Bee/artifacts/1900b0aEDbg.dag/Durak.Runtime.dll, with 137 defines and 281 references
+
+processors: Unity.Jobs.CodeGen.JobsILPostProcessor, Unity.Netcode.Editor.CodeGen.INetworkMessageILPP, Unity.Netcode.Editor.CodeGen.INetworkSerializableILPP, Unity.Netcode.Editor.CodeGen.NetworkBehaviourILPP, Unity.Netcode.Editor.CodeGen.RuntimeAccessModifiersILPP, zzzUnity.Burst.CodeGen.BurstILPostProcessor
+
+running Unity.Jobs.CodeGen.JobsILPostProcessor
+
+running Unity.Netcode.Editor.CodeGen.INetworkMessageILPP
+
+running Unity.Netcode.Editor.CodeGen.INetworkSerializableILPP
+
+running Unity.Netcode.Editor.CodeGen.NetworkBehaviourILPP
+
+running Unity.Netcode.Editor.CodeGen.RuntimeAccessModifiersILPP
+
+running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[1352/1354  0s] CopyFiles Library/ScriptAssemblies/Durak.Runtime.pdb
+[1353/1354  0s] CopyFiles Library/ScriptAssemblies/Durak.Runtime.dll
+*** Tundra build success (2.17 seconds), 7 items updated, 1354 evaluated
+AssetDatabase: script compilation time: 2.653367s
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.864 seconds
+Refreshing native plugins compatible for Editor in 2.06 ms, found 4 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Refreshing native plugins compatible for Editor in 2.25 ms, found 4 plugins.
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  3.745 seconds
+Domain Reload Profiling: 4604ms
+	BeginReloadAssembly (252ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (8ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (154ms)
+	RebuildCommonClasses (24ms)
+	RebuildNativeTypeToScriptingClass (8ms)
+	initialDomainReloadingComplete (20ms)
+	LoadAllAssembliesAndSetupDomain (554ms)
+		LoadAssemblies (419ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (200ms)
+			TypeCache.Refresh (136ms)
+				TypeCache.ScanAssembly (126ms)
+			BuildScriptInfoCaches (52ms)
+			ResolveRequiredComponents (7ms)
+	FinalizeReload (3745ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (3628ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (19ms)
+			SetLoadedEditorAssemblies (6ms)
+			BeforeProcessingInitializeOnLoad (188ms)
+			ProcessInitializeOnLoadAttributes (3297ms)
+			ProcessInitializeOnLoadMethodAttributes (112ms)
+			AfterProcessingInitializeOnLoad (5ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (5ms)
+Refreshing native plugins compatible for Editor in 2.82 ms, found 4 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=fc4894919f25ed646a6bb70b7ae06461): Total: 8.029 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=4224 ms
+		Asset DB Callback time: managed=187 ms, native=20 ms
+		Scripting: domain reloads=1, domain reload time=864 ms, compile time=2654 ms, other=78 ms
+		Project Asset Count: scripts=1790, non-scripts=3208
+		Asset File Changes: new=0, changed=1, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokeCustomDependenciesCallbacks: 0.001ms
+	InvokePackagesCallback: 16.250ms
+	ApplyChangesToAssetFolders: 0.796ms
+	Scan: 150.037ms
+	OnSourceAssetsModified: 0.763ms
+	CategorizeAssetsWithTransientArtifact: 40.823ms
+	ProcessAssetsWithTransientArtifactChanges: 73.028ms
+	CategorizeAssets: 47.884ms
+	ImportOutOfDateAssets: 3758.186ms (1101.750ms without children)
+		CompileScripts: 2654.333ms
+		ReloadNativeAssets: 0.023ms
+		UnloadImportedAssets: 1.073ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.631ms
+		InitializingProgressBar: 0.001ms
+		PostProcessAllAssetNotificationsAddChangedAssets: 0.001ms
+		OnDemandSchedulerStart: 0.374ms
+	PostProcessAllAssets: 187.959ms
+	Hotreload: 4.246ms
+	GatherAllCurrentPrimaryArtifactRevisions: 0.002ms
+	UnloadStreamsBegin: 2.683ms
+	PersistCurrentRevisions: 0.121ms
+	UnloadStreamsEnd: 0.002ms
+	GenerateScriptTypeHashes: 2.446ms
+	Untracked: 3746.632ms
+
+Application.AssetDatabase Initial Refresh End
+Scanning for USB devices : 14.706ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-DurakGameCodex
+Unloading 20 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 8142 unused Assets / (3.5 MB). Loaded Objects now: 8969.
+Memory consumption went from 219.6 MB to 216.0 MB.
+Total: 12.206000 ms (FindLiveObjects: 0.820600 ms CreateObjectMapping: 0.240700 ms MarkObjects: 8.094500 ms  DeleteObjects: 3.049100 ms)
+
+Microsoft Media Foundation video decoding to texture disabled: graphics device is Null, only Direct3D 11 and Direct3D 12 (only on desktop) are supported for hardware-accelerated video decoding.
+[Project] Loading completed in 9.971 seconds
+	Project init time: 				9.602 seconds
+		Template init time: 		0.000 seconds
+		Package Manager init time: 		0.511 seconds
+		Asset Database init time: 		0.134 seconds
+		Global illumination init time: 	0.003 seconds
+		Assemblies load time: 			0.561 seconds
+		Unity extensions init time: 	0.009 seconds
+		Asset Database refresh time: 	8.030 seconds
+	Scene opening time: 			0.183 seconds
+##utp:{"type":"ProjectInfo","version":2,"phase":"Immediate","time":1775585170647,"processId":16036,"projectLoad":9.970711099999999,"projectInit":9.6020723,"templateInit":0.0,"packageManagerInit":0.510916,"assetDatabaseInit":0.1343286,"globalIlluminationInit":0.0025534,"assembliesLoad":0.5607464,"unityExtensionsInit":0.0087918,"assetDatabaseRefresh":8.029732,"sceneOpening":0.1827334}
+##utp:{"type":"EditorInfo","version":2,"phase":"Immediate","time":1775585170647,"processId":16036,"editorVersion":"6000.3.9f1 (7a9955a4f2fa)","branch":"6000.3/staging","buildType":"Release","platform":"Windows"}
+Asset Pipeline Refresh (id=77005bfa6f8409b46bc234441d388f31): Total: 0.053 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+Running tests for ExecutionSettings with details:
+targetPlatform = 
+playerHeartbeatTimeout = 600
+filters[0] = 
+   Filter with settings:
+   testMode = EditMode
+   targetPlatform = 
+   testNames = null
+   groupNames = null
+   categoryNames = null
+   assemblyNames = null
+ignoreTests = {}
+featureFlags = null
+
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityEditor.TestTools.TestRunner.CommandLineTest.Executer:InitializeAndExecuteRun (string[]) (at ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/CommandLineTest/Executer.cs:53)
+UnityEditor.TestTools.TestRunner.CommandLineTest.TestStarter:InitializeAndExecuteRun () (at ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/CommandLineTest/TestStarter.cs:64)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/CommandLineTest/Executer.cs Line: 53)
+
+Start importing Assets/Scripts/Resources/BuildVersionStamp.txt using Guid(4976136b1ab183640ade3d43768b69b3) (TextScriptImporter) -> (artifact id: 'e1b519ca2ba04dfb61b0bfa56871e83b') in 0.0106446 seconds
+Refreshing native plugins compatible for Editor in 2.04 ms, found 4 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Asset Pipeline Refresh (id=1e76a8fbc3fb2c24da4eb6786ec3cb99): Total: 0.062 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Start Indexing on Editor startup
+[Indexing] Starting Initial Indexing for Assets
+[UnityConnectServicesConfig] config is NOT valid, switching to default
+Created GICache directory at C:/Users/Administrator/AppData/LocalLow/Unity/Caches/GiCache. Took: 0.014s, timestamps: [9.973 - 9.988]
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 17 unused Assets / (0.5 KB). Loaded Objects now: 9018.
+Memory consumption went from 185.3 MB to 185.3 MB.
+Total: 8.939100 ms (FindLiveObjects: 0.360500 ms CreateObjectMapping: 0.090000 ms MarkObjects: 8.460500 ms  DeleteObjects: 0.026900 ms)
+
+Executing IPrebuildSetup for: Unity.PerformanceTesting.Editor.TestRunBuilder.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityEditor.TestTools.TestRunner.TestRun.Tasks.BuildActionTaskBase`1/<ExecuteMethods>d__8<UnityEngine.TestTools.IPrebuildSetup>:MoveNext () (at ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/TestRun/Tasks/BuildActionTaskBase.cs:48)
+UnityEditor.TestTools.TestRunner.TestRun.Tasks.BuildActionTaskBase`1/<Execute>d__7<UnityEngine.TestTools.IPrebuildSetup>:MoveNext () (at ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/TestRun/Tasks/BuildActionTaskBase.cs:34)
+UnityEditor.TestTools.TestRunner.TestRun.TestJobRunner:ExecuteStep () (at ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/TestRun/TestJobRunner.cs:173)
+UnityEditor.TestTools.TestRunner.TestRun.TestJobRunner:ExecuteCallback () (at ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/TestRun/TestJobRunner.cs:108)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/TestRun/Tasks/BuildActionTaskBase.cs Line: 48)
+
+Saving results to: C:/Users/Administrator/AppData/LocalLow/DefaultCompany/DurakGameCodex\TestResults.xml
+Saving results to: C:\_dev\DurakGameCodex\TestResults\editmode-results.xml
+Executing IPostBuildCleanup for: Unity.PerformanceTesting.Editor.TestRunBuilder.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityEditor.TestTools.TestRunner.TestRun.Tasks.BuildActionTaskBase`1/<ExecuteMethods>d__8<UnityEngine.TestTools.IPostBuildCleanup>:MoveNext () (at ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/TestRun/Tasks/BuildActionTaskBase.cs:48)
+UnityEditor.TestTools.TestRunner.TestRun.Tasks.BuildActionTaskBase`1/<Execute>d__7<UnityEngine.TestTools.IPostBuildCleanup>:MoveNext () (at ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/TestRun/Tasks/BuildActionTaskBase.cs:34)
+UnityEditor.TestTools.TestRunner.TestRun.TestJobRunner:ExecuteStep () (at ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/TestRun/TestJobRunner.cs:173)
+UnityEditor.TestTools.TestRunner.TestRun.TestJobRunner:ExecuteCallback () (at ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/TestRun/TestJobRunner.cs:108)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/TestRun/Tasks/BuildActionTaskBase.cs Line: 48)
+
+Asset Pipeline Refresh (id=d185e4ae55f5a3e4597a99202c616317): Total: 0.010 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 0 unused Assets / (0 B). Loaded Objects now: 9019.
+Memory consumption went from 185.1 MB to 185.1 MB.
+Total: 8.889500 ms (FindLiveObjects: 0.256400 ms CreateObjectMapping: 0.087000 ms MarkObjects: 8.537100 ms  DeleteObjects: 0.007800 ms)
+
+DisplayProgressbar: Undo
+Test run completed. Exiting with code 0 (Ok). Run completed.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+UnityEditor.TestTools.TestRunner.CommandLineTest.Executer:ExitApplication (UnityEditor.TestTools.TestRunner.CommandLineTest.Executer/ReturnCodes,string) (at ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/CommandLineTest/Executer.cs:81)
+UnityEditor.TestTools.TestRunner.CommandLineTest.Executer:ExitIfRunIsCompleted () (at ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/CommandLineTest/Executer.cs:74)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions ()
+
+(Filename: ./Library/PackageCache/com.unity.test-framework@0b7a23ab2e1d/UnityEditor.TestRunner/CommandLineTest/Executer.cs Line: 81)
+
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input System polling thread exited.
+Input System module state changed to: Shutdown.
+[Licensing::IpcConnector] LicenseClient-Administrator-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-Administrator channel disconnected successfully.
+AcceleratorClientConnectionCallback - disconnected - :0
+Cleanup mono
+20:06:12.673 |V| RiderPlugin                    | :1                             | AppDomain.CurrentDomain.DomainUnload lifetimeDefinition.Terminate
+Checking for leaked weakptr:
+  Found no leaked weakptrs.
+[Package Manager] Server process was shutdown
+##utp:{"type":"MemoryLeaks","version":2,"phase":"Immediate","time":1775585172864,"processId":16036,"allocatedMemory":14839345,"memoryLabels":[{"Default":14409},{"Permanent":15236},{"NewDelete":67731},{"Thread":4230344},{"Manager":36925},{"VertexData":8},{"Geometry":816},{"Texture":296},{"Shader":79379},{"Material":24},{"GfxDevice":55257},{"Animation":392},{"Audio":2664},{"FreeType":8},{"FontEngine":736},{"Physics":2090},{"Physics2D":16},{"Serialization":592},{"Input":14984},{"JobScheduler":33024},{"TextLib":216},{"Mono":32},{"MonoCode":64},{"ScriptingNativeRuntime":155060},{"BaseObject":1620272},{"Resource":1336},{"Renderer":3000},{"Transform":4685},{"File":1016},{"WebCam":616},{"Culling":32},{"Terrain":11394},{"Wind":24},{"STL":40},{"String":13797},{"DynamicArray":113526},{"HashMap":76907},{"Utility":2661910},{"Curl":2559},{"PoolAlloc":2200},{"AI":80},{"TypeTree":5341},{"ScriptManager":512},{"RuntimeInitializeOnLoadManager":64},{"SpriteAtlas":112},{"GI":7792},{"Director":8240},{"CloudService":288},{"WebRequest":808},{"VR":47994},{"SceneManager":504},{"Video":64},{"LazyScriptCache":32},{"Camera":17},{"Secure":2113},{"SerializationCache":1576},{"APIUpdating":10320},{"Subsystems":336},{"VirtualTexturing":57888},{"StaticSafetyDebugInfo":278528},{"Analytics":256},{"Hierarchy":608},{"CoreStats":13032},{"Identifiers":12960},{"Gui":96},{"EditorUtility":120709},{"VersionControl":4},{"Undo":947},{"AssetDatabase":4999715},{"EditorGi":328},{"UnityConnect":29232},{"Upm":1896},{"AssetCompliance":64},{"DrivenProperties":72},{"LocalIPC":219},{"ProfilerEditor":9746},{"CoreBusinessMetrics":2611},{"Licensing":664},{"AssetReference":32},{"IPCStream":32}]}

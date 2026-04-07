@@ -1,0 +1,22 @@
+{
+  "name": "Durak.Runtime",
+  "rootNamespace": "DurakGame",
+  "references": [
+    "Unity.Collections",
+    "Unity.Netcode.Runtime",
+    "Unity.Networking.Transport",
+    "Unity.ugui",
+    "Unity.Services.Authentication",
+    "Unity.Services.Core",
+    "Unity.Services.Relay"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

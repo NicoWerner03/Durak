@@ -1,0 +1,9 @@
+[2026-04-07T18:43:25.4113262Z] Automation enabled. Role=host, Cycles=1, Join=DIRECT:127.0.0.1:7777
+[2026-04-07T18:43:25.9973747Z] Requested host session.
+[2026-04-07T18:43:27.1528615Z] JOIN_CODE:DIRECT:127.0.0.1:7777
+[2026-04-07T18:43:27.1533609Z] Ensured READY in lobby.
+[2026-04-07T18:43:29.5578373Z] Requested online match start.
+[2026-04-07T18:43:30.0527326Z] Entered match. LocalPlayer=0
+[2026-04-07T18:43:31.5527360Z] Match completed. Count=1
+[2026-04-07T18:43:31.5532366Z] Automation completed successfully. Waiting for final network flush.
+[2026-04-07T18:43:32.5528185Z] Exiting with success after grace period.

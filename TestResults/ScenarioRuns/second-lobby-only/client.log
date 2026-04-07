@@ -1,0 +1,12 @@
+[2026-04-07T18:41:00.6187056Z] Automation enabled. Role=client, Cycles=2, Join=DIRECT:127.0.0.1:7777
+[2026-04-07T18:41:01.2089303Z] Requested join session with code DIRECT:127.0.0.1:7777.
+[2026-04-07T18:41:02.3594506Z] Ensured READY in lobby.
+[2026-04-07T18:41:02.7589027Z] Entered match. LocalPlayer=1
+[2026-04-07T18:41:04.4592588Z] Match completed. Count=1
+[2026-04-07T18:41:04.4607602Z] Returning to menu for next cycle.
+[2026-04-07T18:41:05.4602417Z] Requested join session with code DIRECT:127.0.0.1:7777.
+[2026-04-07T18:41:06.6590857Z] Ensured READY in lobby.
+[2026-04-07T18:41:07.7588891Z] Entered match. LocalPlayer=1
+[2026-04-07T18:41:08.9590135Z] Match completed. Count=2
+[2026-04-07T18:41:08.9600152Z] Automation completed successfully. Waiting for final network flush.
+[2026-04-07T18:41:09.9593984Z] Exiting with success after grace period.

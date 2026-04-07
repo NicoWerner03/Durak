@@ -1,0 +1,21 @@
+{
+  "name": "Durak.EditModeTests",
+  "rootNamespace": "DurakGame.Tests",
+  "references": [
+    "Durak.Runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
