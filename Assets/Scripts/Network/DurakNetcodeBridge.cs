@@ -314,6 +314,12 @@ namespace DurakGame.Network
                 BroadcastStateSnapshotToRemoteClients(snapshot);
             }
 
+            for (var i = 0; i < clientIds.Count; i++)
+            {
+                _clientReady[clientIds[i]] = false;
+            }
+
+            PublishLobbyState();
             return true;
         }
 
@@ -1285,6 +1291,7 @@ namespace DurakGame.Network
             writer.WriteValueSafe(round.AttackLimit);
             writer.WriteValueSafe(round.DefenderInitialHandCount);
             writer.WriteValueSafe(round.ActiveAttackerIndex);
+            writer.WriteValueSafe(round.DefenderIsTaking);
 
             var attackerOrder = round.AttackerOrder ?? new List<int>();
             writer.WriteValueSafe(attackerOrder.Count);
@@ -1372,6 +1379,7 @@ namespace DurakGame.Network
             reader.ReadValueSafe(out state.Round.AttackLimit);
             reader.ReadValueSafe(out state.Round.DefenderInitialHandCount);
             reader.ReadValueSafe(out state.Round.ActiveAttackerIndex);
+            reader.ReadValueSafe(out state.Round.DefenderIsTaking);
 
             int attackerOrderCount;
             reader.ReadValueSafe(out attackerOrderCount);

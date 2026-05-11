@@ -673,7 +673,7 @@ namespace DurakGame.UI
             _resultText.supportRichText = true;
             _resultText.horizontalOverflow = HorizontalWrapMode.Wrap;
             _resultText.verticalOverflow = VerticalWrapMode.Overflow;
-            SetPreferredHeight(_resultText.gameObject, 48f);
+            SetPreferredHeight(_resultText.gameObject, 72f);
 
             // ── Hand row (bottom) ───────────────────────────────────────
             _handSection = new GameObject("HandSection");
@@ -700,10 +700,8 @@ namespace DurakGame.UI
             SetPreferredHeight(_quickActionBar, 48f);
             SetMinHeight(_quickActionBar, 48f);
 
-            _takeCardsButton = CreateButton(_quickActionBar.transform, "Take Cards",
-                () => SubmitNonCardIntentByType(PlayerIntentType.TakeCards));
-            _endAttackButton = CreateButton(_quickActionBar.transform, "End Attack",
-                () => SubmitNonCardIntentByType(PlayerIntentType.EndAttack));
+            _takeCardsButton = CreateButton(_quickActionBar.transform, "Aufnehmen", SubmitPrimaryQuickAction);
+            _endAttackButton = CreateButton(_quickActionBar.transform, "Angriff beenden", SubmitSecondaryQuickAction);
 
             // ── Actions title + scroll (for card disambiguation) ────────
             _actionsTitleText = CreateText("ActionsTitle", parent, "Actions", 15, FontStyle.Bold);
@@ -749,7 +747,7 @@ namespace DurakGame.UI
             ClearChildren(_deckTrumpContainer.transform);
 
             _trumpLabelText = CreateText("TrumpLabel", _deckTrumpContainer.transform,
-                "Trump: —", 14, FontStyle.Bold);
+                "Trumpf: —", 14, FontStyle.Bold);
             _trumpLabelText.alignment = TextAnchor.MiddleCenter;
             _trumpLabelText.color = AccentTextColor;
             _trumpLabelText.supportRichText = true;
@@ -874,13 +872,23 @@ namespace DurakGame.UI
             DetectAndPlayTransitionSounds(state);
 
             var accentHex = ColorToHex(AccentTextColor);
+            var successHex = ColorToHex(SuccessTextColor);
+            var dangerHex = ColorToHex(DangerTextColor);
+            var attackCount = state.Round != null && state.Round.Table != null ? state.Round.Table.Count : 0;
+            var attackLimit = state.Round != null ? state.Round.AttackLimit : 0;
 
             _summaryText.text =
-                Labeled("Phase",    accentHex) + state.Phase                                          + "\n" +
-                Labeled("Round",    accentHex) + state.Round.RoundNumber                              + "\n" +
-                Labeled("Attacker", accentHex) + _controller.GetPlayerLabel(state.Round.AttackerId)   + "\n" +
-                Labeled("Defender", accentHex) + _controller.GetPlayerLabel(state.Round.DefenderId)   + "\n" +
-                Labeled("Turn",     accentHex) + _controller.GetPlayerLabel(state.CurrentTurnPlayerId);
+                Labeled("Phase",       accentHex) + state.Phase                                        + "\n" +
+                Labeled("Runde",       accentHex) + state.Round.RoundNumber                            + "\n" +
+                Labeled("Angriffe",    accentHex) + attackCount + "/" + attackLimit                    + "\n" +
+                Labeled("Angreifer",   successHex) + _controller.GetPlayerLabel(state.Round.AttackerId) + "\n" +
+                Labeled("Verteidiger", dangerHex) + _controller.GetPlayerLabel(state.Round.DefenderId) + "\n" +
+                Labeled("Am Zug",      accentHex) + _controller.GetPlayerLabel(state.CurrentTurnPlayerId);
+
+            if (state.Round.DefenderIsTaking)
+            {
+                _summaryText.text += "\n" + Labeled("Status", accentHex) + "Verteidiger nimmt; Nachwerfen möglich";
+            }
 
             if (_controller.IsRoundRevealActive)
             {
@@ -919,6 +927,7 @@ namespace DurakGame.UI
             var localId = _controller.LocalPlayerId;
             var sb = new System.Text.StringBuilder();
             sb.Append(state.CurrentTurnPlayerId).Append('|');
+            sb.Append(state.Round.AttackerId).Append('|').Append(state.Round.DefenderId).Append('|');
             for (var i = 0; i < state.Players.Count; i++)
             {
                 var p = state.Players[i];
@@ -935,7 +944,9 @@ namespace DurakGame.UI
                 var p = state.Players[i];
                 if (p.PlayerId == localId) continue;
                 CreateOpponentSlot(_opponentsContainer.transform, p,
-                    p.PlayerId == state.CurrentTurnPlayerId);
+                    p.PlayerId == state.CurrentTurnPlayerId,
+                    p.PlayerId == state.Round.AttackerId,
+                    p.PlayerId == state.Round.DefenderId);
             }
             _opponentsSignature = sig;
         }
@@ -945,7 +956,7 @@ namespace DurakGame.UI
             var sig = state.DeckCount + "|" + (int)state.TrumpSuit;
             if (sig == _deckSignature) return;
 
-            _trumpLabelText.text = "Trump:  " + SuitRich(state.TrumpSuit);
+            _trumpLabelText.text = "Trumpf:  " + SuitRich(state.TrumpSuit);
             _deckCountText.text  = "Deck: " + state.DeckCount + "  cards";
 
             // Rebuild the visual deck stack + trump card
@@ -995,6 +1006,17 @@ namespace DurakGame.UI
 
         private void RefreshQuickActions(GameState state)
         {
+            if (state.Phase == GamePhase.Completed)
+            {
+                _takeCardsButton.gameObject.SetActive(true);
+                _endAttackButton.gameObject.SetActive(true);
+                SetButtonLabel(_takeCardsButton, _controller.GetPlayAgainButtonLabel());
+                SetButtonLabel(_endAttackButton, _controller.IsOnline ? "Session verlassen" : "Zum Menü");
+                _takeCardsButton.interactable = true;
+                _endAttackButton.interactable = true;
+                return;
+            }
+
             var isMyTurn = _controller.IsLocalHumanTurn();
             var legal    = isMyTurn ? _controller.GetLocalLegalIntents() : null;
             var canTake  = HasNonCardIntent(legal, PlayerIntentType.TakeCards);
@@ -1002,8 +1024,34 @@ namespace DurakGame.UI
 
             _takeCardsButton.gameObject.SetActive(true);
             _endAttackButton.gameObject.SetActive(true);
+            SetButtonLabel(_takeCardsButton, "Aufnehmen");
+            SetButtonLabel(_endAttackButton, "Angriff beenden");
             _takeCardsButton.interactable = canTake;
             _endAttackButton.interactable = canEnd;
+        }
+
+        private void SubmitPrimaryQuickAction()
+        {
+            var state = _controller.State;
+            if (state != null && state.Phase == GamePhase.Completed)
+            {
+                _controller.RequestPlayAgain();
+                return;
+            }
+
+            SubmitNonCardIntentByType(PlayerIntentType.TakeCards);
+        }
+
+        private void SubmitSecondaryQuickAction()
+        {
+            var state = _controller.State;
+            if (state != null && state.Phase == GamePhase.Completed)
+            {
+                _controller.RequestReturnToMenu();
+                return;
+            }
+
+            SubmitNonCardIntentByType(PlayerIntentType.EndAttack);
         }
 
         private static bool HasNonCardIntent(IReadOnlyList<PlayerIntent> intents, PlayerIntentType type)
@@ -1171,7 +1219,7 @@ namespace DurakGame.UI
             if (_hasSelectedHandCard && !HandContains(localPlayer.Hand, _selectedHandCard))
                 _hasSelectedHandCard = false;
 
-            var sig = BuildHandSignature(localPlayer.Hand, isMyTurn, _hasSelectedHandCard,
+            var sig = BuildHandSignature(localPlayer.Hand, isMyTurn, state.TurnSequence, _hasSelectedHandCard,
                 _hasSelectedHandCard ? _selectedHandCard : default);
             if (sig == _handSignature) return;
 
@@ -1217,7 +1265,7 @@ namespace DurakGame.UI
         {
             if (intents.Count == 0) return;
 
-            if (intents.Count == 1)
+            if (intents.Count == 1 && intents[0].Type != PlayerIntentType.Transfer)
             {
                 DurakAudioManager.PlaySfx(SfxForIntent(intents[0].Type));
                 _hasSelectedHandCard = false;
@@ -1227,7 +1275,7 @@ namespace DurakGame.UI
                 return;
             }
 
-            // Multiple intents — select the card and show disambiguation in the actions area
+            // Select transfer cards too, because same-rank transfer is visually easy to mistake for defense.
             DurakAudioManager.PlaySfx(SfxKind.CardSelect);
             _hasSelectedHandCard = true;
             _selectedHandCard    = card;
@@ -1307,11 +1355,10 @@ namespace DurakGame.UI
 
             if (_hasSelectedHandCard)
             {
-                SetActionsTitle("Actions for " + RankToShortString(_selectedHandCard.Rank) +
-                    SuitSymbol(_selectedHandCard.Suit) + "  —  click card again to cancel");
+                SetActionsTitle("Aktion für " + RankToShortString(_selectedHandCard.Rank) +
+                    SuitSymbol(_selectedHandCard.Suit));
 
-                // Add a Cancel option so the player can deselect
-                CreateButton(_actionsContainer.transform, "Cancel selection", () =>
+                CreateButton(_actionsContainer.transform, "Abbrechen", () =>
                 {
                     _hasSelectedHandCard = false;
                     _actionsSignature    = string.Empty;
@@ -1374,6 +1421,7 @@ namespace DurakGame.UI
             var accentHex  = ColorToHex(AccentTextColor);
             var mutedHex   = ColorToHex(MutedTextColor);
             var successHex = ColorToHex(SuccessTextColor);
+            var dangerHex  = ColorToHex(DangerTextColor);
             var sb = new StringBuilder();
             sb.Append("<color=#").Append(accentHex).Append(">Players</color>\n");
 
@@ -1382,7 +1430,11 @@ namespace DurakGame.UI
                 var player  = state.Players[i];
                 var isLocal = player.PlayerId == _controller.LocalPlayerId;
                 var isTurn  = player.PlayerId == state.CurrentTurnPlayerId;
-                var nameHex = isTurn ? successHex : (isLocal ? accentHex : ColorToHex(PrimaryTextColor));
+                var isAttacker = player.PlayerId == state.Round.AttackerId;
+                var isDefender = player.PlayerId == state.Round.DefenderId;
+                var nameHex = isDefender ? dangerHex :
+                    isAttacker ? successHex :
+                    isTurn ? successHex : (isLocal ? accentHex : ColorToHex(PrimaryTextColor));
 
                 sb.Append("  <color=#").Append(nameHex).Append(">")
                   .Append(_controller.GetPlayerLabel(player.PlayerId))
@@ -1391,6 +1443,8 @@ namespace DurakGame.UI
 
                 if (player.IsBot)  sb.Append("  <color=#").Append(mutedHex).Append(">[BOT]</color>");
                 if (isLocal)       sb.Append("  <color=#").Append(accentHex).Append(">[YOU]</color>");
+                if (isAttacker)    sb.Append("  <color=#").Append(successHex).Append(">[ANGREIFER]</color>");
+                if (isDefender)    sb.Append("  <color=#").Append(dangerHex).Append(">[VERTEIDIGER]</color>");
                 if (isTurn)        sb.Append("  <color=#").Append(successHex).Append(">[TURN]</color>");
                 sb.AppendLine();
             }
@@ -1409,7 +1463,9 @@ namespace DurakGame.UI
             return
                 "<color=#" + ColorToHex(DangerTextColor)  + ">Durak (loser):</color>  " +
                     _controller.GetPlayerLabel(result.DurakPlayerId) + "\n" +
-                "<color=#" + ColorToHex(SuccessTextColor) + ">Winners:</color>  " + names;
+                "<color=#" + ColorToHex(SuccessTextColor) + ">Winners:</color>  " + names + "\n" +
+                "<color=#" + ColorToHex(AccentTextColor) + ">Nochmal:</color>  " +
+                    _controller.GetPlayAgainStatusText();
         }
 
         // ── Signature Helpers ──────────────────────────────────────────────────
@@ -1441,11 +1497,12 @@ namespace DurakGame.UI
             return sb.ToString();
         }
 
-        private static string BuildHandSignature(List<Card> hand, bool isMyTurn,
+        private static string BuildHandSignature(List<Card> hand, bool isMyTurn, int turnSequence,
             bool hasSelection, Card selectedCard)
         {
             if (hand == null || hand.Count == 0) return "EMPTY";
             var sb = new StringBuilder();
+            sb.Append("SEQ:").Append(turnSequence).Append('|');
             if (isMyTurn)  sb.Append("TURN|");
             if (hasSelection) sb.Append("SEL:").Append(CardKey(selectedCard)).Append('|');
             for (var i = 0; i < hand.Count; i++)
@@ -1613,7 +1670,7 @@ namespace DurakGame.UI
             er.offsetMin = Vector2.zero; er.offsetMax = Vector2.zero;
 
             // Centered emblem
-            var emblem = CreateText("Sym", outer.transform, "♠", Mathf.RoundToInt(height * 0.32f),
+            var emblem = CreateText("Sym", outer.transform, "D", Mathf.RoundToInt(height * 0.32f),
                 FontStyle.Bold);
             emblem.color = CardBackEmblemColor;
             emblem.alignment = TextAnchor.MiddleCenter;
@@ -1623,10 +1680,19 @@ namespace DurakGame.UI
         }
 
         // Opponent panel: name, card-back stack, hand count.
-        private GameObject CreateOpponentSlot(Transform parent, PlayerState player, bool isCurrentTurn)
+        private GameObject CreateOpponentSlot(Transform parent, PlayerState player, bool isCurrentTurn,
+            bool isAttacker, bool isDefender)
         {
-            var bg = isCurrentTurn ? OpponentActiveColor : SurfaceColor;
-            var border = isCurrentTurn ? AccentTextColor : DividerColor;
+            var bg = isDefender
+                ? new Color(0.180f, 0.065f, 0.060f, 0.92f)
+                : isAttacker
+                    ? new Color(0.060f, 0.165f, 0.090f, 0.92f)
+                    : (isCurrentTurn ? OpponentActiveColor : SurfaceColor);
+            var border = isDefender
+                ? DangerTextColor
+                : isAttacker
+                    ? SuccessTextColor
+                    : (isCurrentTurn ? AccentTextColor : DividerColor);
             var slot = CreateBorderedPanel("OppSlot_" + player.PlayerId, parent, bg, border);
             ConfigureVerticalContainer(slot.transform, 4f, 12, 8);
             SetPreferredWidth(slot, 230f);
@@ -1637,7 +1703,9 @@ namespace DurakGame.UI
             // Name + role
             var nameText = CreateText("Name", slot.transform,
                 _controller.GetPlayerLabel(player.PlayerId), 15, FontStyle.Bold);
-            nameText.color = isCurrentTurn ? AccentTextColor : PrimaryTextColor;
+            nameText.color = isDefender ? DangerTextColor :
+                isAttacker ? SuccessTextColor :
+                isCurrentTurn ? AccentTextColor : PrimaryTextColor;
             nameText.alignment = TextAnchor.MiddleCenter;
             nameText.supportRichText = true;
             SetPreferredHeight(nameText.gameObject, 20f);
@@ -1653,10 +1721,14 @@ namespace DurakGame.UI
             // Status row (count + tags)
             var status = new System.Text.StringBuilder();
             status.Append(player.Hand != null ? player.Hand.Count : 0).Append(" cards");
+            if (isAttacker) status.Append("  · ANGREIFER");
+            if (isDefender) status.Append("  · VERTEIDIGER");
             if (player.IsBot) status.Append("  · BOT");
             if (isCurrentTurn) status.Append("  · TURN");
             var statusText = CreateText("Status", slot.transform, status.ToString(), 12, FontStyle.Normal);
-            statusText.color = isCurrentTurn ? AccentTextColor : MutedTextColor;
+            statusText.color = isDefender ? DangerTextColor :
+                isAttacker ? SuccessTextColor :
+                isCurrentTurn ? AccentTextColor : MutedTextColor;
             statusText.alignment = TextAnchor.MiddleCenter;
             SetPreferredHeight(statusText.gameObject, 16f);
 
@@ -1709,10 +1781,10 @@ namespace DurakGame.UI
         {
             switch (suit)
             {
-                case Suit.Clubs:    return "Clubs";
-                case Suit.Diamonds: return "Diamonds";
-                case Suit.Hearts:   return "Hearts";
-                case Suit.Spades:   return "Spades";
+                case Suit.Clubs:    return "Kreuz";
+                case Suit.Diamonds: return "Karo";
+                case Suit.Hearts:   return "Herz";
+                case Suit.Spades:   return "Pik";
                 default:            return suit.ToString();
             }
         }

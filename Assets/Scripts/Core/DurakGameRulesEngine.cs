@@ -100,7 +100,7 @@ namespace DurakGame.Core
                 return intents;
             }
 
-            if (playerId == State.Round.DefenderId && HasUndefendedAttacks())
+            if (playerId == State.Round.DefenderId && HasUndefendedAttacks() && !State.Round.DefenderIsTaking)
             {
                 for (var pairIndex = 0; pairIndex < State.Round.Table.Count; pairIndex++)
                 {
@@ -117,6 +117,15 @@ namespace DurakGame.Core
                         {
                             intents.Add(PlayerIntent.Defend(playerId, pairIndex, defenseCard));
                         }
+                    }
+                }
+
+                for (var cardIndex = 0; cardIndex < player.Hand.Count; cardIndex++)
+                {
+                    var transferCard = player.Hand[cardIndex];
+                    if (CanTransferCard(transferCard))
+                    {
+                        intents.Add(PlayerIntent.Transfer(playerId, transferCard));
                     }
                 }
 
@@ -184,6 +193,9 @@ namespace DurakGame.Core
                     break;
                 case PlayerIntentType.Defend:
                     success = TryApplyDefend(intent, out error);
+                    break;
+                case PlayerIntentType.Transfer:
+                    success = TryApplyTransfer(intent, out error);
                     break;
                 case PlayerIntentType.AddCard:
                     success = TryApplyAddCard(intent, out error);
@@ -373,6 +385,7 @@ namespace DurakGame.Core
                 AttackerOrder = BuildAttackerOrder(attackerId, defenderId),
                 Table = new List<TablePair>(),
                 ActiveAttackerIndex = 0,
+                DefenderIsTaking = false,
             };
 
             if (State.Round.AttackLimit <= 0)
@@ -521,6 +534,12 @@ namespace DurakGame.Core
                 return false;
             }
 
+            if (State.Round.DefenderIsTaking)
+            {
+                error = "Defender already chose to take cards.";
+                return false;
+            }
+
             if (!intent.HasCard)
             {
                 error = "Defend requires a card.";
@@ -561,6 +580,76 @@ namespace DurakGame.Core
             return true;
         }
 
+        private bool TryApplyTransfer(PlayerIntent intent, out string error)
+        {
+            error = string.Empty;
+
+            if (intent.PlayerId != State.Round.DefenderId)
+            {
+                error = "Only defender can transfer.";
+                return false;
+            }
+
+            if (State.Round.DefenderIsTaking)
+            {
+                error = "Cannot transfer after choosing to take cards.";
+                return false;
+            }
+
+            if (!intent.HasCard)
+            {
+                error = "Transfer requires a card.";
+                return false;
+            }
+
+            if (!CanTransferCard(intent.Card))
+            {
+                error = "Transfer card must match the active attack rank and the next defender must have enough cards.";
+                return false;
+            }
+
+            var currentDefender = State.GetPlayer(intent.PlayerId);
+            if (currentDefender == null || !RemoveCardFromHand(currentDefender, intent.Card))
+            {
+                error = "Transfer card not in hand.";
+                return false;
+            }
+
+            var nextDefenderId = FindNextPlayerWithCards(intent.PlayerId, false);
+            var nextDefender = State.GetPlayer(nextDefenderId);
+            if (nextDefender == null)
+            {
+                error = "No next defender available.";
+                currentDefender.Hand.Add(intent.Card);
+                return false;
+            }
+
+            State.Round.Table.Add(new TablePair
+            {
+                AttackCard = intent.Card,
+                IsDefended = false,
+            });
+
+            State.Round.AttackerId = intent.PlayerId;
+            State.Round.DefenderId = nextDefenderId;
+            State.Round.DefenderInitialHandCount = nextDefender.Hand.Count;
+            State.Round.AttackLimit = Math.Min(InitialHandSize, nextDefender.Hand.Count);
+            if (State.Round.AttackLimit <= 0)
+            {
+                State.Round.AttackLimit = 1;
+            }
+
+            State.Round.AttackerOrder = BuildAttackerOrder(State.Round.AttackerId, State.Round.DefenderId);
+            State.Round.ActiveAttackerIndex = 0;
+            State.Round.DefenderIsTaking = false;
+
+            _passedAttackers.Clear();
+            _attackerCursor = 0;
+
+            RecomputeTurn();
+            return true;
+        }
+
         private bool TryApplyTakeCards(PlayerIntent intent, out string error)
         {
             error = string.Empty;
@@ -577,7 +666,10 @@ namespace DurakGame.Core
                 return false;
             }
 
-            ResolveDefenderTakeRound();
+            State.Round.DefenderIsTaking = true;
+            _passedAttackers.Clear();
+            MoveCursorToAttacker(State.Round.AttackerId);
+            RecomputeTurn();
             return true;
         }
 
@@ -634,7 +726,7 @@ namespace DurakGame.Core
                 return;
             }
 
-            if (HasUndefendedAttacks())
+            if (HasUndefendedAttacks() && !State.Round.DefenderIsTaking)
             {
                 State.CurrentTurnPlayerId = State.Round.DefenderId;
                 return;
@@ -644,14 +736,14 @@ namespace DurakGame.Core
 
             if (State.Round.Table.Count > 0 && !CanAnyAttackerAct())
             {
-                ResolveSuccessfulDefenseRound();
+                ResolveRoundAfterAttackersDone();
                 return;
             }
 
             var nextAttacker = FindNextAttackerForTurn();
             if (nextAttacker < 0)
             {
-                ResolveSuccessfulDefenseRound();
+                ResolveRoundAfterAttackersDone();
                 return;
             }
 
@@ -780,6 +872,23 @@ namespace DurakGame.Core
             }
         }
 
+        private void MoveCursorToAttacker(int playerId)
+        {
+            var attackers = State.Round.AttackerOrder;
+            for (var i = 0; i < attackers.Count; i++)
+            {
+                if (attackers[i] == playerId)
+                {
+                    _attackerCursor = i;
+                    State.Round.ActiveAttackerIndex = i;
+                    return;
+                }
+            }
+
+            _attackerCursor = 0;
+            State.Round.ActiveAttackerIndex = 0;
+        }
+
         private bool CanAddAttackCard(Card card)
         {
             if (State.Round.Table.Count == 0)
@@ -807,6 +916,38 @@ namespace DurakGame.Core
             }
 
             return false;
+        }
+
+        private bool CanTransferCard(Card card)
+        {
+            if (State.Round.DefenderIsTaking || State.Round.Table.Count == 0)
+            {
+                return false;
+            }
+
+            if (State.Round.Table.Count >= InitialHandSize)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < State.Round.Table.Count; i++)
+            {
+                var pair = State.Round.Table[i];
+                if (pair.IsDefended || pair.AttackCard.Rank != card.Rank)
+                {
+                    return false;
+                }
+            }
+
+            var nextDefenderId = FindNextPlayerWithCards(State.Round.DefenderId, false);
+            var nextDefender = State.GetPlayer(nextDefenderId);
+            if (nextDefender == null)
+            {
+                return false;
+            }
+
+            var nextAttackLimit = Math.Min(InitialHandSize, nextDefender.Hand.Count);
+            return State.Round.Table.Count + 1 <= nextAttackLimit;
         }
 
         private bool CanBeat(Card defenseCard, Card attackCard)
@@ -842,6 +983,17 @@ namespace DurakGame.Core
             }
 
             return false;
+        }
+
+        private void ResolveRoundAfterAttackersDone()
+        {
+            if (State.Round.DefenderIsTaking || HasUndefendedAttacks())
+            {
+                ResolveDefenderTakeRound();
+                return;
+            }
+
+            ResolveSuccessfulDefenseRound();
         }
 
         private void ResolveSuccessfulDefenseRound()

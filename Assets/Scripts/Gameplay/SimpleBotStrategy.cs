@@ -13,6 +13,7 @@ namespace DurakGame.Gameplay
             }
 
             PlayerIntent bestDefense = null;
+            PlayerIntent bestTransfer = null;
             PlayerIntent bestAttack = null;
             PlayerIntent endAttack = null;
             PlayerIntent takeCards = null;
@@ -26,6 +27,13 @@ namespace DurakGame.Gameplay
                         if (bestDefense == null || CompareCards(intent.Card, bestDefense.Card) < 0)
                         {
                             bestDefense = intent;
+                        }
+
+                        break;
+                    case PlayerIntentType.Transfer:
+                        if (bestTransfer == null || CompareCards(intent.Card, bestTransfer.Card) < 0)
+                        {
+                            bestTransfer = intent;
                         }
 
                         break;
@@ -49,6 +57,11 @@ namespace DurakGame.Gameplay
             if (bestDefense != null)
             {
                 return bestDefense;
+            }
+
+            if (bestTransfer != null)
+            {
+                return bestTransfer;
             }
 
             if (bestAttack != null)

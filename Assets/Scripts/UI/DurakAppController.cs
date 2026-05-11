@@ -39,6 +39,7 @@ namespace DurakGame.UI
         private bool _awaitingResync;
         private bool _localLobbyReady;
         private LobbyStateSnapshot _lobbyState = new LobbyStateSnapshot();
+        private int _offlineTotalPlayers = 2;
         private float _nextMatchResumeRequestAt;
         private readonly List<TablePair> _roundRevealTable = new List<TablePair>();
         private float _roundRevealUntil;
@@ -57,6 +58,7 @@ namespace DurakGame.UI
         public GameState State => _engine != null ? _engine.State : null;
         public bool LocalLobbyReady => _localLobbyReady;
         public bool CanStartOnlineMatch => _isHost && _netcodeBridge != null && _netcodeBridge.CanStartMatch(MaxOnlinePlayers);
+        public bool IsMatchCompleted => IsCompletedMatch();
         public bool IsRoundRevealActive => IsRoundRevealCurrentlyActive();
         public IReadOnlyList<TablePair> RoundRevealTable => IsRoundRevealCurrentlyActive() ? _roundRevealTable : Array.Empty<TablePair>();
         public int RoundRevealRoundNumber => IsRoundRevealCurrentlyActive() ? _roundRevealRoundNumber : -1;
@@ -187,6 +189,72 @@ namespace DurakGame.UI
         public void RequestStartOnlineMatch()
         {
             StartOnlineMatch();
+        }
+
+        public void RequestPlayAgain()
+        {
+            if (!IsCompletedMatch())
+            {
+                return;
+            }
+
+            if (!_isOnline)
+            {
+                StartOfflineMatch(_offlineTotalPlayers);
+                return;
+            }
+
+            if (_netcodeBridge == null)
+            {
+                _status = "No online session available.";
+                return;
+            }
+
+            var nextReady = !_localLobbyReady;
+            if (!_netcodeBridge.SetLocalReady(nextReady))
+            {
+                _status = "Could not update rematch ready state.";
+                return;
+            }
+
+            _localLobbyReady = nextReady;
+            _status = nextReady
+                ? "Rematch ready. Waiting for all players."
+                : "Rematch cancelled for you.";
+
+            TryStartOnlineRematchIfReady();
+        }
+
+        public string GetPlayAgainButtonLabel()
+        {
+            if (!_isOnline)
+            {
+                return "Neue Runde";
+            }
+
+            return _localLobbyReady ? "Bereit zurücknehmen" : "Nochmal spielen";
+        }
+
+        public string GetPlayAgainStatusText()
+        {
+            if (!IsCompletedMatch())
+            {
+                return string.Empty;
+            }
+
+            if (!_isOnline)
+            {
+                return "Neue Runde startet sofort mit " + _offlineTotalPlayers + " Spielern.";
+            }
+
+            int connected;
+            int ready;
+            CountLobbyReady(out connected, out ready);
+            var localStatus = _localLobbyReady ? "Du bist bereit." : "Du bist noch nicht bereit.";
+            var startStatus = _isHost
+                ? "Startet automatisch, sobald alle bereit sind."
+                : "Warte auf Host und Mitspieler.";
+            return "Nochmal spielen: " + ready + "/" + connected + " bereit. " + localStatus + " " + startStatus;
         }
 
         public void RequestToggleLobbyReady()
@@ -487,7 +555,7 @@ namespace DurakGame.UI
             var state = _engine.State;
             GUILayout.BeginVertical(_boxStyle);
             GUILayout.Label("Phase: " + state.Phase);
-            GUILayout.Label("Trump: " + SuitToString(state.TrumpSuit));
+            GUILayout.Label("Trumpf: " + SuitToString(state.TrumpSuit));
             GUILayout.Label("Deck: " + state.DeckCount);
             GUILayout.Label("Round: " + state.Round.RoundNumber);
             GUILayout.Label("Attacker: " + FormatPlayer(state.Round.AttackerId));
@@ -504,7 +572,13 @@ namespace DurakGame.UI
             if (state.Phase == GamePhase.Completed)
             {
                 DrawMatchResult(state.MatchResult);
-                if (GUILayout.Button("Back to Menu", GUILayout.Height(32f)))
+                GUILayout.Label(GetPlayAgainStatusText());
+                if (GUILayout.Button(GetPlayAgainButtonLabel(), GUILayout.Height(32f)))
+                {
+                    RequestPlayAgain();
+                }
+
+                if (GUILayout.Button(_isOnline ? "Leave Session" : "Back to Menu", GUILayout.Height(32f)))
                 {
                     ReturnToMenu();
                 }
@@ -738,6 +812,7 @@ namespace DurakGame.UI
 
         private void StartOfflineMatch(int totalPlayers)
         {
+            _offlineTotalPlayers = Mathf.Clamp(totalPlayers, 2, 4);
             var seats = new List<PlayerSeat>();
             seats.Add(new PlayerSeat
             {
@@ -747,7 +822,7 @@ namespace DurakGame.UI
                 OwnerClientId = 0,
             });
 
-            for (var i = 1; i < totalPlayers; i++)
+            for (var i = 1; i < _offlineTotalPlayers; i++)
             {
                 seats.Add(new PlayerSeat
                 {
@@ -920,6 +995,13 @@ namespace DurakGame.UI
             _lobbyState = snapshot.Clone();
             UpdateLocalReadyFromLobbyState();
 
+            if (_screen == AppScreen.Match && _isOnline && IsCompletedMatch())
+            {
+                UpdateCompletedOnlineMatchStatus();
+                TryStartOnlineRematchIfReady();
+                return;
+            }
+
             if (_screen != AppScreen.Lobby)
             {
                 return;
@@ -962,6 +1044,57 @@ namespace DurakGame.UI
                 {
                     _netcodeBridge.RequestMatchResumeFromServer();
                     _netcodeBridge.RequestStateSnapshotFromServer();
+                }
+            }
+        }
+
+        private void UpdateCompletedOnlineMatchStatus()
+        {
+            int connected;
+            int ready;
+            CountLobbyReady(out connected, out ready);
+            _status = "Rematch vote: " + ready + "/" + connected + " ready.";
+        }
+
+        private void TryStartOnlineRematchIfReady()
+        {
+            if (!_isOnline || !_isHost || _netcodeBridge == null || !IsCompletedMatch())
+            {
+                return;
+            }
+
+            if (!_netcodeBridge.CanStartMatch(MaxOnlinePlayers))
+            {
+                return;
+            }
+
+            _status = "All players ready. Starting rematch...";
+            StartOnlineMatch();
+        }
+
+        private bool IsCompletedMatch()
+        {
+            return _screen == AppScreen.Match &&
+                _engine != null &&
+                _engine.State != null &&
+                _engine.State.Phase == GamePhase.Completed;
+        }
+
+        private void CountLobbyReady(out int connected, out int ready)
+        {
+            var players = _lobbyState != null && _lobbyState.Players != null ? _lobbyState.Players : null;
+            connected = players != null && players.Count > 0 ? players.Count : ConnectedPlayers;
+            ready = 0;
+            if (players == null)
+            {
+                return;
+            }
+
+            for (var i = 0; i < players.Count; i++)
+            {
+                if (players[i].IsReady)
+                {
+                    ready += 1;
                 }
             }
         }
@@ -1151,15 +1284,17 @@ namespace DurakGame.UI
             switch (intent.Type)
             {
                 case PlayerIntentType.Attack:
-                    return "Attack " + CardToShortString(intent.Card);
+                    return "Angriff mit " + CardToShortString(intent.Card);
                 case PlayerIntentType.AddCard:
-                    return "Add " + CardToShortString(intent.Card);
+                    return "Nachwerfen " + CardToShortString(intent.Card);
                 case PlayerIntentType.Defend:
-                    return "Defend #" + intent.TargetPairIndex + " with " + CardToShortString(intent.Card);
+                    return "Schlagen mit " + CardToShortString(intent.Card);
+                case PlayerIntentType.Transfer:
+                    return "Schieben mit " + CardToShortString(intent.Card);
                 case PlayerIntentType.TakeCards:
-                    return "Take cards";
+                    return "Aufnehmen";
                 case PlayerIntentType.EndAttack:
-                    return "End attack";
+                    return "Angriff beenden";
                 default:
                     return intent.Type.ToString();
             }
@@ -1246,13 +1381,13 @@ namespace DurakGame.UI
             switch (suit)
             {
                 case Suit.Clubs:
-                    return "Clubs";
+                    return "Kreuz";
                 case Suit.Diamonds:
-                    return "Diamonds";
+                    return "Karo";
                 case Suit.Hearts:
-                    return "Hearts";
+                    return "Herz";
                 case Suit.Spades:
-                    return "Spades";
+                    return "Pik";
                 default:
                     return suit.ToString();
             }

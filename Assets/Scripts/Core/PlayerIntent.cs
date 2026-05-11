@@ -9,6 +9,7 @@ namespace DurakGame.Core
         AddCard = 2,
         TakeCards = 3,
         EndAttack = 4,
+        Transfer = 5,
     }
 
     [Serializable]
@@ -51,6 +52,17 @@ namespace DurakGame.Core
                 HasCard = true,
                 Card = card,
                 TargetPairIndex = targetPairIndex,
+            };
+        }
+
+        public static PlayerIntent Transfer(int playerId, Card card)
+        {
+            return new PlayerIntent
+            {
+                PlayerId = playerId,
+                Type = PlayerIntentType.Transfer,
+                HasCard = true,
+                Card = card,
             };
         }
 

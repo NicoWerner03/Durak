@@ -87,6 +87,7 @@ namespace DurakGame.Core
         public int AttackLimit = 6;
         public int DefenderInitialHandCount;
         public int ActiveAttackerIndex;
+        public bool DefenderIsTaking;
         public List<int> AttackerOrder = new List<int>();
         public List<TablePair> Table = new List<TablePair>();
 
@@ -100,6 +101,7 @@ namespace DurakGame.Core
                 AttackLimit = AttackLimit,
                 DefenderInitialHandCount = DefenderInitialHandCount,
                 ActiveAttackerIndex = ActiveAttackerIndex,
+                DefenderIsTaking = DefenderIsTaking,
                 AttackerOrder = new List<int>(AttackerOrder),
                 Table = new List<TablePair>(),
             };

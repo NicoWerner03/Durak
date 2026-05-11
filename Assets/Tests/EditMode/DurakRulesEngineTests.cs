@@ -281,6 +281,156 @@ namespace DurakGame.Tests
         }
 
         [Test]
+        public void AddCard_IsRejected_WhenCombinedAttackLimitIsReached()
+        {
+            var engine = CreateControlledEngine(
+                attackerId: 0,
+                defenderId: 1,
+                trump: Suit.Clubs,
+                currentTurnPlayerId: 2,
+                attackLimit: 2,
+                attackerOrder: new[] { 0, 2 },
+                players: new[]
+                {
+                    CreatePlayer(0, "A1", false, new Card(Suit.Clubs, Rank.Ace)),
+                    CreatePlayer(1, "D", false, new Card(Suit.Hearts, Rank.Six), new Card(Suit.Hearts, Rank.Seven)),
+                    CreatePlayer(2, "A2", false, new Card(Suit.Diamonds, Rank.Ten)),
+                },
+                table: new[]
+                {
+                    CreatePair(new Card(Suit.Spades, Rank.Ten), defended: true, new Card(Suit.Spades, Rank.Jack)),
+                    CreatePair(new Card(Suit.Hearts, Rank.Ten), defended: true, new Card(Suit.Hearts, Rank.Jack)),
+                });
+
+            var result = engine.ApplyIntent(PlayerIntent.AddCard(2, new Card(Suit.Diamonds, Rank.Ten)));
+
+            Assert.IsFalse(result.Accepted);
+            Assert.That(result.Error, Does.Contain("Attack limit reached"));
+        }
+
+        [Test]
+        public void AddCard_ByPlayerOutsideAttackerOrder_IsRejected()
+        {
+            var engine = CreateControlledEngine(
+                attackerId: 0,
+                defenderId: 1,
+                trump: Suit.Clubs,
+                currentTurnPlayerId: 2,
+                attackLimit: 6,
+                attackerOrder: new[] { 0 },
+                players: new[]
+                {
+                    CreatePlayer(0, "A", false, new Card(Suit.Clubs, Rank.Ace)),
+                    CreatePlayer(1, "D", false, new Card(Suit.Hearts, Rank.Six)),
+                    CreatePlayer(2, "Spectator", false, new Card(Suit.Diamonds, Rank.Ten)),
+                },
+                table: new[]
+                {
+                    CreatePair(new Card(Suit.Spades, Rank.Ten), defended: true, new Card(Suit.Spades, Rank.Jack)),
+                });
+
+            var result = engine.ApplyIntent(PlayerIntent.AddCard(2, new Card(Suit.Diamonds, Rank.Ten)));
+
+            Assert.IsFalse(result.Accepted);
+            Assert.That(result.Error, Does.Contain("Only attackers can add"));
+        }
+
+        [Test]
+        public void TakeCards_AllowsAttackersToThrowMatchingRanksBeforeDefenderCollects()
+        {
+            var engine = CreateControlledEngine(
+                attackerId: 0,
+                defenderId: 1,
+                trump: Suit.Clubs,
+                currentTurnPlayerId: 1,
+                attackLimit: 3,
+                attackerOrder: new[] { 0 },
+                players: new[]
+                {
+                    CreatePlayer(0, "A", false,
+                        new Card(Suit.Hearts, Rank.Ten),
+                        new Card(Suit.Diamonds, Rank.Ten)),
+                    CreatePlayer(1, "D", false, new Card(Suit.Hearts, Rank.Six)),
+                },
+                table: new[]
+                {
+                    CreatePair(new Card(Suit.Spades, Rank.Ten), defended: false, new Card()),
+                });
+
+            var takeResult = engine.ApplyIntent(PlayerIntent.TakeCards(1));
+            Assert.IsTrue(takeResult.Accepted, takeResult.Error);
+            Assert.IsTrue(engine.State.Round.DefenderIsTaking);
+            Assert.AreEqual(0, engine.State.CurrentTurnPlayerId);
+
+            var firstThrow = FindIntentForCard(
+                engine.GetLegalIntents(0),
+                PlayerIntentType.AddCard,
+                new Card(Suit.Hearts, Rank.Ten));
+            Assert.IsNotNull(firstThrow);
+
+            var firstThrowResult = engine.ApplyIntent(firstThrow);
+            Assert.IsTrue(firstThrowResult.Accepted, firstThrowResult.Error);
+            Assert.IsTrue(engine.State.Round.DefenderIsTaking);
+            Assert.AreEqual(2, engine.State.Round.Table.Count);
+
+            var secondThrow = FindIntentForCard(
+                engine.GetLegalIntents(0),
+                PlayerIntentType.AddCard,
+                new Card(Suit.Diamonds, Rank.Ten));
+            Assert.IsNotNull(secondThrow);
+
+            var secondThrowResult = engine.ApplyIntent(secondThrow);
+            Assert.IsTrue(secondThrowResult.Accepted, secondThrowResult.Error);
+
+            Assert.GreaterOrEqual(engine.State.Round.RoundNumber, 2);
+            Assert.IsTrue(ContainsCard(engine.State.GetPlayer(1).Hand, new Card(Suit.Spades, Rank.Ten)));
+            Assert.IsTrue(ContainsCard(engine.State.GetPlayer(1).Hand, new Card(Suit.Hearts, Rank.Ten)));
+            Assert.IsTrue(ContainsCard(engine.State.GetPlayer(1).Hand, new Card(Suit.Diamonds, Rank.Ten)));
+        }
+
+        [Test]
+        public void DefenderCanTransferMatchingAttackRankToNextPlayer()
+        {
+            var engine = CreateControlledEngine(
+                attackerId: 0,
+                defenderId: 1,
+                trump: Suit.Clubs,
+                currentTurnPlayerId: 1,
+                attackLimit: 2,
+                attackerOrder: new[] { 0 },
+                players: new[]
+                {
+                    CreatePlayer(0, "A", false, new Card(Suit.Spades, Rank.Ace)),
+                    CreatePlayer(1, "D", false,
+                        new Card(Suit.Hearts, Rank.Ten),
+                        new Card(Suit.Hearts, Rank.Nine)),
+                    CreatePlayer(2, "Next", false,
+                        new Card(Suit.Spades, Rank.Six),
+                        new Card(Suit.Spades, Rank.Seven)),
+                },
+                table: new[]
+                {
+                    CreatePair(new Card(Suit.Spades, Rank.Ten), defended: false, new Card()),
+                });
+
+            var transfer = FindIntentForCard(
+                engine.GetLegalIntents(1),
+                PlayerIntentType.Transfer,
+                new Card(Suit.Hearts, Rank.Ten));
+            Assert.IsNotNull(transfer);
+
+            var result = engine.ApplyIntent(transfer);
+            Assert.IsTrue(result.Accepted, result.Error);
+
+            Assert.AreEqual(1, engine.State.Round.AttackerId);
+            Assert.AreEqual(2, engine.State.Round.DefenderId);
+            Assert.AreEqual(2, engine.State.CurrentTurnPlayerId);
+            Assert.AreEqual(2, engine.State.Round.Table.Count);
+            Assert.AreEqual(2, engine.State.Round.AttackLimit);
+            Assert.IsFalse(ContainsCard(engine.State.GetPlayer(1).Hand, new Card(Suit.Hearts, Rank.Ten)));
+        }
+
+        [Test]
         public void SuccessfulDefense_ThenEndAttack_StartsNextRoundWithPreviousDefenderAsAttacker()
         {
             var engine = new DurakGameRulesEngine();
@@ -322,16 +472,25 @@ namespace DurakGame.Tests
         [Test]
         public void DefenderTakeCards_StartsNextRoundWithoutChangingAttacker()
         {
-            var engine = new DurakGameRulesEngine();
-            engine.InitializeMatch(CreateSeats(2, includeBots: false), seed: 77);
+            var engine = CreateControlledEngine(
+                attackerId: 0,
+                defenderId: 1,
+                trump: Suit.Spades,
+                currentTurnPlayerId: 1,
+                attackLimit: 6,
+                attackerOrder: new[] { 0 },
+                players: new[]
+                {
+                    CreatePlayer(0, "A", false, new Card(Suit.Diamonds, Rank.King)),
+                    CreatePlayer(1, "D", false, new Card(Suit.Hearts, Rank.Six)),
+                },
+                table: new[]
+                {
+                    CreatePair(new Card(Suit.Clubs, Rank.Queen), defended: false, new Card()),
+                });
 
-            var originalAttacker = engine.State.CurrentTurnPlayerId;
-
-            var attackIntent = engine.GetLegalIntents(originalAttacker)[0];
-            var attackResult = engine.ApplyIntent(attackIntent);
-            Assert.IsTrue(attackResult.Accepted);
-
-            var defender = engine.State.CurrentTurnPlayerId;
+            var originalAttacker = engine.State.Round.AttackerId;
+            var defender = engine.State.Round.DefenderId;
             var takeIntent = FindFirstIntent(engine.GetLegalIntents(defender), PlayerIntentType.TakeCards);
             Assert.IsNotNull(takeIntent);
 
@@ -348,16 +507,26 @@ namespace DurakGame.Tests
         [Test]
         public void DefenderTakeCards_DoesNotMakeDefenderImmediateAttacker_InThreePlayerRound()
         {
-            var engine = new DurakGameRulesEngine();
-            engine.InitializeMatch(CreateSeats(3, includeBots: false), seed: 91);
+            var engine = CreateControlledEngine(
+                attackerId: 0,
+                defenderId: 1,
+                trump: Suit.Spades,
+                currentTurnPlayerId: 1,
+                attackLimit: 6,
+                attackerOrder: new[] { 0, 2 },
+                players: new[]
+                {
+                    CreatePlayer(0, "A", false, new Card(Suit.Diamonds, Rank.King)),
+                    CreatePlayer(1, "D", false, new Card(Suit.Hearts, Rank.Six)),
+                    CreatePlayer(2, "A2", false, new Card(Suit.Hearts, Rank.Ace)),
+                },
+                table: new[]
+                {
+                    CreatePair(new Card(Suit.Clubs, Rank.Queen), defended: false, new Card()),
+                });
 
-            var attacker = engine.State.CurrentTurnPlayerId;
+            var attacker = engine.State.Round.AttackerId;
             var defender = engine.State.Round.DefenderId;
-
-            var attackIntent = engine.GetLegalIntents(attacker)[0];
-            var attackResult = engine.ApplyIntent(attackIntent);
-            Assert.IsTrue(attackResult.Accepted);
-
             var takeIntent = FindFirstIntent(engine.GetLegalIntents(defender), PlayerIntentType.TakeCards);
             Assert.IsNotNull(takeIntent);
 
@@ -516,6 +685,33 @@ namespace DurakGame.Tests
             }
 
             return null;
+        }
+
+        private static PlayerIntent FindIntentForCard(IReadOnlyList<PlayerIntent> intents, PlayerIntentType type, Card card)
+        {
+            for (var i = 0; i < intents.Count; i++)
+            {
+                var intent = intents[i];
+                if (intent.Type == type && intent.HasCard && intent.Card.Equals(card))
+                {
+                    return intent;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool ContainsCard(IReadOnlyList<Card> cards, Card card)
+        {
+            for (var i = 0; i < cards.Count; i++)
+            {
+                if (cards[i].Equals(card))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static DurakGameRulesEngine CreateControlledEngine(
