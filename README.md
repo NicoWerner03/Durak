@@ -32,7 +32,7 @@ Unity 6 prototype for **Podkidnoy Durak (36 cards)** with:
 - `DurakNetcodeBridge`: message-based authoritative intent sync
 - `DurakAppController`: menu/lobby/match UI + orchestration
 
-## Quick Start
+## Quick Start (Unity Editor)
 
 1. Open project in Unity `6000.3.9f1`.
 2. Wait for package import and compile.
@@ -42,6 +42,20 @@ Unity 6 prototype for **Podkidnoy Durak (36 cards)** with:
    - `Start Offline (1 Human + 1 Bot)`
    - `Start Offline (1 Human + 3 Bots)`
    - `Host Session` / `Join Session` for online play.
+
+## Run From Pre-Built Executable (Windows)
+
+A ready-to-run Windows build is included in the `Builds/` folder — no
+Unity installation required.
+
+1. Open the `Builds/` folder.
+2. Double-click `DurakGame.exe`.
+3. Press `ESC` at any time to open the pause menu (Resume / Options /
+   Leave Match / Quit Game).
+
+A second build at `Builds/ScenarioRunner/DurakGame.exe` is the same game
+compiled with the automation hooks used by the regression scripts in
+`Tools/`. For normal play, use the top-level `Builds/DurakGame.exe`.
 
 ## Notes
 
