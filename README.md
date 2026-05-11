@@ -1,4 +1,4 @@
-# DurakGameCodex
+# DurakGame
 
 Unity 6 prototype for **Podkidnoy Durak (36 cards)** with:
 

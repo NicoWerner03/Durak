@@ -13,7 +13,7 @@ namespace DurakGame.Editor
             var outputPath = ReadCommandLineValue("-durakBuildOutput");
             if (string.IsNullOrWhiteSpace(outputPath))
             {
-                outputPath = "Builds/ScenarioRunner/DurakGameCodex.exe";
+                outputPath = "Builds/ScenarioRunner/DurakGame.exe";
             }
 
             var fullOutputPath = Path.GetFullPath(outputPath);

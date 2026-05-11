@@ -1,16 +1,33 @@
+# ── Local-only documentation ──────────────────────────────────────────
+Docs/
+
+# ── Unity generated folders ────────────────────────────────────────────
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
+[Bb]uild/
+[Bb]uilds/
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
 [Mm]emoryCaptures/
 [Rr]ecordings/
-[Aa]ssets/AssetStoreTools*
 
-# Addressables
+# ── Test / scenario artifacts ──────────────────────────────────────────
+TestResults/
+*.log
+*.stacktrace
+
+# ── Addressables / AssetStore ──────────────────────────────────────────
+[Aa]ssets/AssetStoreTools*
 [Aa]ssets/AddressableAssetsData/*/*.bin*
 
-# Visual Studio / Rider
+# ── Build outputs (just in case Unity puts them outside Builds/) ──────
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# ── IDE / Editor (Visual Studio, Rider, VS Code, JetBrains) ───────────
 *.csproj
 *.unityproj
 *.sln
@@ -27,11 +44,20 @@
 *.VC.db
 .idea/
 .vscode/
+.vs/
+*.DotSettings.user
 
-# Unity generated metadata
+# ── Unity crash / diagnostic ──────────────────────────────────────────
 sysinfo.txt
-*.stacktrace
+crashlytics-build.properties
 
-# OS files
+# ── OS files ──────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# ── Environment / secrets (never commit credentials) ──────────────────
+.env
+.env.*
+*.secret
+secrets.json

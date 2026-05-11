@@ -16,6 +16,7 @@ namespace DurakGame.UI
             var root = new GameObject("DurakApp");
             Object.DontDestroyOnLoad(root);
 
+            root.AddComponent<DurakAudioManager>();
             root.AddComponent<UnityNetworkSessionService>();
             root.AddComponent<DurakNetcodeBridge>();
             root.AddComponent<DurakAppController>();

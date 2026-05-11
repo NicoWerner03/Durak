@@ -19,6 +19,7 @@ namespace DurakGame.UI
         }
 
         private const int MaxOnlinePlayers = 4;
+        private const float RoundRevealDurationSeconds = 1.4f;
         [SerializeField] private bool enableLegacyOnGui;
 
         private IGameRulesEngine _engine;
@@ -39,6 +40,9 @@ namespace DurakGame.UI
         private bool _localLobbyReady;
         private LobbyStateSnapshot _lobbyState = new LobbyStateSnapshot();
         private float _nextMatchResumeRequestAt;
+        private readonly List<TablePair> _roundRevealTable = new List<TablePair>();
+        private float _roundRevealUntil;
+        private int _roundRevealRoundNumber = -1;
 
         private GUIStyle _titleStyle;
         private GUIStyle _boxStyle;
@@ -53,6 +57,9 @@ namespace DurakGame.UI
         public GameState State => _engine != null ? _engine.State : null;
         public bool LocalLobbyReady => _localLobbyReady;
         public bool CanStartOnlineMatch => _isHost && _netcodeBridge != null && _netcodeBridge.CanStartMatch(MaxOnlinePlayers);
+        public bool IsRoundRevealActive => IsRoundRevealCurrentlyActive();
+        public IReadOnlyList<TablePair> RoundRevealTable => IsRoundRevealCurrentlyActive() ? _roundRevealTable : Array.Empty<TablePair>();
+        public int RoundRevealRoundNumber => IsRoundRevealCurrentlyActive() ? _roundRevealRoundNumber : -1;
 
         private void Awake()
         {
@@ -99,8 +106,15 @@ namespace DurakGame.UI
             _netcodeBridge.ServerSnapshotProvider = null;
         }
 
+        // Set by the UI when the pause overlay is open. Suppresses local-only
+        // progress (bot turns) so an offline match doesn't advance behind the menu.
+        // Online games cannot truly be paused — remote players keep playing.
+        public bool IsPaused { get; set; }
+
         private void Update()
         {
+            if (IsPaused && !_isOnline) return;
+
             if (_isOnline && !_isHost && _screen == AppScreen.Lobby && _netcodeBridge != null &&
                 IsClientConnectionHealthy() &&
                 Time.unscaledTime >= _nextMatchResumeRequestAt)
@@ -110,7 +124,13 @@ namespace DurakGame.UI
                 _nextMatchResumeRequestAt = Time.unscaledTime + 1.0f;
             }
 
-            if (_screen != AppScreen.Match || _engine.State.Phase != GamePhase.InRound)
+            var state = _engine != null ? _engine.State : null;
+            if (_screen != AppScreen.Match || state == null || state.Phase != GamePhase.InRound)
+            {
+                return;
+            }
+
+            if (IsRoundRevealCurrentlyActive())
             {
                 return;
             }
@@ -289,6 +309,11 @@ namespace DurakGame.UI
 
         public bool IsLocalHumanTurn()
         {
+            if (IsRoundRevealCurrentlyActive())
+            {
+                return false;
+            }
+
             if (_engine == null || _engine.State == null || _engine.State.Phase != GamePhase.InRound)
             {
                 return false;
@@ -323,6 +348,12 @@ namespace DurakGame.UI
             if (_engine == null || _engine.State == null || _engine.State.Phase != GamePhase.InRound)
             {
                 _status = "No active round.";
+                return;
+            }
+
+            if (IsRoundRevealCurrentlyActive())
+            {
+                _status = "Round finished. Showing cards briefly...";
                 return;
             }
 
@@ -729,6 +760,7 @@ namespace DurakGame.UI
 
             var seed = unchecked((int)DateTime.UtcNow.Ticks);
             _engine.InitializeMatch(seats, seed);
+            ClearRoundReveal();
 
             _isOnline = false;
             _isHost = true;
@@ -755,12 +787,21 @@ namespace DurakGame.UI
 
         private bool HandleServerIntent(PlayerIntent intent)
         {
+            if (IsRoundRevealCurrentlyActive())
+            {
+                _status = "Round finished. Showing cards briefly...";
+                return false;
+            }
+
+            var revealCandidate = CaptureRoundRevealCandidate();
             var result = _engine.ApplyIntent(intent);
             if (!result.Accepted)
             {
                 _status = "Rejected intent: " + result.Error;
                 return false;
             }
+
+            StartRoundRevealIfNeeded(revealCandidate);
 
             if (_engine.State.Phase == GamePhase.Completed)
             {
@@ -773,6 +814,7 @@ namespace DurakGame.UI
         private void OnMatchStarted(NetworkMatchStartData startData)
         {
             _engine.InitializeMatch(startData.Seats, startData.Seed);
+            ClearRoundReveal();
             _localPlayerId = startData.LocalPlayerId;
             _screen = AppScreen.Match;
             _status = "Online match started. You are " + FormatPlayer(_localPlayerId) + ".";
@@ -808,6 +850,7 @@ namespace DurakGame.UI
                 return;
             }
 
+            var revealCandidate = CaptureRoundRevealCandidate();
             var result = _engine.ApplyIntent(intent);
             if (!result.Accepted)
             {
@@ -816,6 +859,8 @@ namespace DurakGame.UI
                 _netcodeBridge.RequestStateSnapshotFromServer();
                 return;
             }
+
+            StartRoundRevealIfNeeded(revealCandidate);
 
             _lastAuthoritativeSequence = sequence;
             if (_engine.State.Phase == GamePhase.Completed)
@@ -834,6 +879,7 @@ namespace DurakGame.UI
             var previousPhase = _engine != null && _engine.State != null ? _engine.State.Phase : GamePhase.Lobby;
             var wasAwaitingResync = _awaitingResync;
             _engine.RestoreSnapshot(snapshot);
+            ClearRoundReveal();
             _lastAuthoritativeSequence = snapshot.Sequence;
             _awaitingResync = false;
 
@@ -957,6 +1003,12 @@ namespace DurakGame.UI
 
         private void SubmitIntent(PlayerIntent intent)
         {
+            if (IsRoundRevealCurrentlyActive())
+            {
+                _status = "Round finished. Showing cards briefly...";
+                return;
+            }
+
             if (_isOnline)
             {
                 if (!_netcodeBridge.SubmitLocalIntent(intent))
@@ -967,15 +1019,110 @@ namespace DurakGame.UI
                 return;
             }
 
+            var revealCandidate = CaptureRoundRevealCandidate();
             var result = _engine.ApplyIntent(intent);
             if (!result.Accepted)
             {
                 _status = "Intent rejected: " + result.Error;
             }
-            else if (_engine.State.Phase == GamePhase.Completed)
+            else
+            {
+                StartRoundRevealIfNeeded(revealCandidate);
+            }
+
+            if (result.Accepted && _engine.State.Phase == GamePhase.Completed)
             {
                 _status = "Match finished.";
             }
+        }
+
+        private RoundRevealCandidate CaptureRoundRevealCandidate()
+        {
+            var state = _engine != null ? _engine.State : null;
+            if (state == null || state.Round == null || state.Round.Table == null || state.Round.Table.Count == 0)
+            {
+                return RoundRevealCandidate.Empty;
+            }
+
+            var table = new List<TablePair>();
+            for (var i = 0; i < state.Round.Table.Count; i++)
+            {
+                table.Add(state.Round.Table[i].Clone());
+            }
+
+            return new RoundRevealCandidate
+            {
+                RoundNumber = state.Round.RoundNumber,
+                Table = table,
+            };
+        }
+
+        private void StartRoundRevealIfNeeded(RoundRevealCandidate candidate)
+        {
+            if (candidate.Table == null || candidate.Table.Count == 0)
+            {
+                return;
+            }
+
+            var state = _engine != null ? _engine.State : null;
+            var roundAdvanced = state == null ||
+                state.Phase == GamePhase.Completed ||
+                state.Round == null ||
+                state.Round.RoundNumber != candidate.RoundNumber ||
+                state.Round.Table == null ||
+                state.Round.Table.Count == 0;
+
+            if (!roundAdvanced)
+            {
+                return;
+            }
+
+            _roundRevealTable.Clear();
+            for (var i = 0; i < candidate.Table.Count; i++)
+            {
+                _roundRevealTable.Add(candidate.Table[i].Clone());
+            }
+
+            _roundRevealRoundNumber = candidate.RoundNumber;
+            _roundRevealUntil = Time.unscaledTime + RoundRevealDurationSeconds;
+            _nextBotActionAt = Mathf.Max(_nextBotActionAt, _roundRevealUntil + 0.15f);
+
+            if (state != null && state.Phase != GamePhase.Completed)
+            {
+                _status = "Round finished. Showing cards briefly...";
+            }
+        }
+
+        private bool IsRoundRevealCurrentlyActive()
+        {
+            if (_roundRevealTable.Count == 0)
+            {
+                return false;
+            }
+
+            if (Time.unscaledTime < _roundRevealUntil)
+            {
+                return true;
+            }
+
+            _roundRevealTable.Clear();
+            _roundRevealRoundNumber = -1;
+            return false;
+        }
+
+        private void ClearRoundReveal()
+        {
+            _roundRevealTable.Clear();
+            _roundRevealUntil = 0f;
+            _roundRevealRoundNumber = -1;
+        }
+
+        private struct RoundRevealCandidate
+        {
+            public static readonly RoundRevealCandidate Empty = new RoundRevealCandidate();
+
+            public int RoundNumber;
+            public List<TablePair> Table;
         }
 
         private void EnsureStyles()
@@ -1086,16 +1233,11 @@ namespace DurakGame.UI
         {
             switch (suit)
             {
-                case Suit.Clubs:
-                    return "C";
-                case Suit.Diamonds:
-                    return "D";
-                case Suit.Hearts:
-                    return "H";
-                case Suit.Spades:
-                    return "S";
-                default:
-                    return "?";
+                case Suit.Clubs:    return "♣";
+                case Suit.Diamonds: return "♦";
+                case Suit.Hearts:   return "♥";
+                case Suit.Spades:   return "♠";
+                default:            return "?";
             }
         }
 
@@ -1247,6 +1389,7 @@ namespace DurakGame.UI
             _netcodeBridge.ServerSnapshotProvider = BuildServerSnapshot;
 
             _engine = new DurakGameRulesEngine();
+            ClearRoundReveal();
             _screen = AppScreen.Menu;
             _isOnline = false;
             _isHost = false;

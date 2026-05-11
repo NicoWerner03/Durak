@@ -1,5 +1,5 @@
 param(
-    [string]$ExePath = "C:\_dev\DurakGameCodex\Builds\ScenarioRunner\DurakGameCodex.exe",
+    [string]$ExePath = "C:\_dev\DurakGame\Builds\ScenarioRunner\DurakGame.exe",
     [int]$StabilityCycles = 10,
     [int]$TimeoutSeconds = 900
 )
@@ -8,8 +8,8 @@ $ErrorActionPreference = "Stop"
 
 function Stop-RunningDurakProcesses {
     Get-Process | Where-Object {
-        $_.ProcessName -like 'DurakGameCodex*' -or
-        ($_.Path -and $_.Path -like '*DurakGameCodex.exe')
+        $_.ProcessName -like 'DurakGame*' -or
+        ($_.Path -and $_.Path -like '*DurakGame.exe')
     } | ForEach-Object {
         try { Stop-Process -Id $_.Id -Force } catch {}
     }
@@ -66,7 +66,7 @@ if (-not (Test-Path $ExePath)) {
 
 Stop-RunningDurakProcesses
 
-$runRoot = "C:\_dev\DurakGameCodex\TestResults\ScenarioRuns"
+$runRoot = "C:\_dev\DurakGame\TestResults\ScenarioRuns"
 New-Item -ItemType Directory -Path $runRoot -Force | Out-Null
 
 $commonArgs = @(
