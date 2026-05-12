@@ -8,7 +8,7 @@ Library: C:\_dev\DurakGameCodex\Temp\BurstOutput\Data\Plugins\x86_64\lib_burst_g
 --dump=Function
 --float-precision=Standard
 --target-framework=NetFramework
---linker-options=PdbAltPath="DurakGameCodex_Data/Plugins/x86_64/lib_burst_generated.pdb"
+--linker-options=PdbAltPath="DurakGame_Data/Plugins/x86_64/lib_burst_generated.pdb"
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=C:\_dev\DurakGameCodex\Temp\Burst
 --key-folder=C:/Program Files/Unity/Hub/Editor/6000.3.9f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport
@@ -100,7 +100,7 @@ Library: C:\_dev\DurakGameCodex\Temp\BurstOutput\Data\Plugins\x86_64\lib_burst_g
 --dump=Function
 --float-precision=Standard
 --target-framework=NetFramework
---linker-options=PdbAltPath="DurakGameCodex_Data/Plugins/x86_64/lib_burst_generated.pdb"
+--linker-options=PdbAltPath="DurakGame_Data/Plugins/x86_64/lib_burst_generated.pdb"
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=C:\_dev\DurakGameCodex\Temp\Burst
 --key-folder=C:/Program Files/Unity/Hub/Editor/6000.3.9f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport
@@ -194,7 +194,7 @@ Library: C:\_dev\DurakGameCodex\Temp\BurstOutput\Data\Plugins\x86_64\lib_burst_g
 --float-precision=Standard
 --target-framework=NetFramework
 --float-mode=Fast
---linker-options=PdbAltPath="DurakGameCodex_Data/Plugins/x86_64/lib_burst_generated.pdb"
+--linker-options=PdbAltPath="DurakGame_Data/Plugins/x86_64/lib_burst_generated.pdb"
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=C:\_dev\DurakGameCodex\Temp\Burst
 --key-folder=C:/Program Files/Unity/Hub/Editor/6000.3.9f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport
@@ -215,7 +215,7 @@ Library: C:\_dev\DurakGameCodex\Temp\BurstOutput\Data\Plugins\x86_64\lib_burst_g
 --float-precision=Standard
 --target-framework=NetFramework
 --float-mode=Fast
---linker-options=PdbAltPath="DurakGameCodex_Data/Plugins/x86_64/lib_burst_generated.pdb"
+--linker-options=PdbAltPath="DurakGame_Data/Plugins/x86_64/lib_burst_generated.pdb"
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=C:\_dev\DurakGameCodex\Temp\Burst
 --key-folder=C:/Program Files/Unity/Hub/Editor/6000.3.9f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport
@@ -234,7 +234,7 @@ Library: C:\_dev\DurakGameCodex\Temp\BurstOutput\Data\Plugins\x86_64\lib_burst_g
 --dump=Function
 --float-precision=Standard
 --target-framework=NetFramework
---linker-options=PdbAltPath="DurakGameCodex_Data/Plugins/x86_64/lib_burst_generated.pdb"
+--linker-options=PdbAltPath="DurakGame_Data/Plugins/x86_64/lib_burst_generated.pdb"
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=C:\_dev\DurakGameCodex\Temp\Burst
 --key-folder=C:/Program Files/Unity/Hub/Editor/6000.3.9f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport
@@ -351,7 +351,7 @@ Library: C:\_dev\DurakGameCodex\Temp\BurstOutput\Data\Plugins\x86_64\lib_burst_g
 --dump=Function
 --float-precision=Standard
 --target-framework=NetFramework
---linker-options=PdbAltPath="DurakGameCodex_Data/Plugins/x86_64/lib_burst_generated.pdb"
+--linker-options=PdbAltPath="DurakGame_Data/Plugins/x86_64/lib_burst_generated.pdb"
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=C:\_dev\DurakGameCodex\Temp\Burst
 --key-folder=C:/Program Files/Unity/Hub/Editor/6000.3.9f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport
