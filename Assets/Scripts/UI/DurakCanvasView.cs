@@ -81,6 +81,10 @@ namespace DurakGame.UI
         private GameObject _opponentsContainer;
         private GameObject _deckTrumpContainer;
         private GameObject _statusInfoContainer;
+        private GameObject _turnBannerPanel;
+        private Image      _turnBannerImage;
+        private Text       _turnBannerTitleText;
+        private Text       _turnBannerActionText;
         private Text       _deckCountText;
         private Text       _trumpLabelText;
         private Button     _takeCardsButton;
@@ -600,6 +604,29 @@ namespace DurakGame.UI
             CreateSectionTitle("MatchTitle", parent, "Match");
             CreateDivider(parent);
 
+            // ── Prominent turn / role / outcome banner ──────────────────
+            _turnBannerPanel = new GameObject("TurnBanner");
+            _turnBannerPanel.transform.SetParent(parent, false);
+            _turnBannerImage = _turnBannerPanel.AddComponent<Image>();
+            _turnBannerImage.color = SurfaceRaisedColor;
+            ConfigureVerticalContainer(_turnBannerPanel.transform, 2f, 18, 8);
+            SetPreferredHeight(_turnBannerPanel, 62f);
+            SetMinHeight(_turnBannerPanel, 62f);
+
+            _turnBannerTitleText = CreateText("TurnBannerTitle", _turnBannerPanel.transform,
+                "—", 19, FontStyle.Bold);
+            _turnBannerTitleText.alignment = TextAnchor.MiddleCenter;
+            _turnBannerTitleText.color = PrimaryTextColor;
+            _turnBannerTitleText.supportRichText = true;
+            SetPreferredHeight(_turnBannerTitleText.gameObject, 24f);
+
+            _turnBannerActionText = CreateText("TurnBannerAction", _turnBannerPanel.transform,
+                "—", 14, FontStyle.Normal);
+            _turnBannerActionText.alignment = TextAnchor.MiddleCenter;
+            _turnBannerActionText.color = MutedTextColor;
+            _turnBannerActionText.supportRichText = true;
+            SetPreferredHeight(_turnBannerActionText.gameObject, 18f);
+
             // ── Opponents row (top) ─────────────────────────────────────
             _opponentsContainer = new GameObject("OpponentsRow");
             _opponentsContainer.transform.SetParent(parent, false);
@@ -899,6 +926,7 @@ namespace DurakGame.UI
 
             _playersText.text = BuildPlayersText(state);
 
+            RefreshTurnBanner(state);
             RefreshOpponents(state);
             RefreshDeckTrump(state);
             RefreshTableCards(state);
@@ -920,6 +948,151 @@ namespace DurakGame.UI
 
             _resultText.text = string.Empty;
             RefreshActionButtons();
+        }
+
+        // Prominent banner showing whose turn it is, in what role, and what they
+        // are expected to do — or, during round-reveal, how the round just ended.
+        private void RefreshTurnBanner(GameState state)
+        {
+            if (_turnBannerPanel == null) return;
+
+            // ── Round reveal: show what just happened ──
+            if (_controller.IsRoundRevealActive
+                && state.LastResolvedRoundOutcome != RoundOutcome.None
+                && state.LastResolvedRoundNumber == _controller.RoundRevealRoundNumber)
+            {
+                var defenderLabel = _controller.GetPlayerLabel(state.LastResolvedRoundDefenderId);
+                var defenderIsLocal = state.LastResolvedRoundDefenderId == _controller.LocalPlayerId;
+
+                if (state.LastResolvedRoundOutcome == RoundOutcome.DefenderWon)
+                {
+                    SetTurnBanner(
+                        title:  (defenderIsLocal ? "Du hast" : defenderLabel + " hat") +
+                                " alle Angriffe abgewehrt",
+                        action: "Die Karten wandern auf den Abwurfstapel. Verteidiger wird neuer Angreifer.",
+                        background: new Color(0.16f, 0.30f, 0.22f, 1f),
+                        accent:     SuccessTextColor);
+                    return;
+                }
+
+                if (state.LastResolvedRoundOutcome == RoundOutcome.DefenderTook)
+                {
+                    var n = state.LastResolvedRoundTakenCardCount;
+                    SetTurnBanner(
+                        title:  (defenderIsLocal ? "Du musstest " : defenderLabel + " musste ") +
+                                n + " Karte" + (n == 1 ? "" : "n") + " nehmen",
+                        action: "Verteidiger bleibt Verteidiger — der nächste Angreifer kommt dran.",
+                        background: new Color(0.32f, 0.16f, 0.14f, 1f),
+                        accent:     DangerTextColor);
+                    return;
+                }
+            }
+
+            // ── Match completed banner ──
+            if (state.Phase == GamePhase.Completed)
+            {
+                var winnerHas = state.MatchResult.Winners != null
+                             && state.MatchResult.Winners.Contains(_controller.LocalPlayerId);
+                SetTurnBanner(
+                    title:  winnerHas ? "Du hast gewonnen!" : "Match beendet",
+                    action: "Drücke ESC, um zurück ins Menü zu kehren.",
+                    background: winnerHas ? new Color(0.16f, 0.30f, 0.22f, 1f) : SurfaceRaisedColor,
+                    accent:     winnerHas ? SuccessTextColor : PrimaryTextColor);
+                return;
+            }
+
+            // ── Live turn banner ──
+            var turnId    = state.CurrentTurnPlayerId;
+            var localId   = _controller.LocalPlayerId;
+            var isMyTurn  = turnId == localId;
+            var role      = ResolveRoleForPlayer(state, turnId);
+            var turnName  = _controller.GetPlayerLabel(turnId);
+
+            var roleLabelMine = role switch
+            {
+                TurnRole.Defender     => "Du bist <color=#" + ColorToHex(DangerTextColor)  + ">Verteidiger</color>",
+                TurnRole.MainAttacker => "Du bist <color=#" + ColorToHex(AccentTextColor)  + ">Angreifer</color>",
+                TurnRole.CoAttacker   => "Du bist <color=#" + ColorToHex(AccentTextColor)  + ">Co-Angreifer</color>",
+                _                     => "Du bist am Zug",
+            };
+            var roleLabelOther = role switch
+            {
+                TurnRole.Defender     => turnName + " <color=#" + ColorToHex(DangerTextColor) + ">verteidigt</color>",
+                TurnRole.MainAttacker => turnName + " <color=#" + ColorToHex(AccentTextColor) + ">greift an</color>",
+                TurnRole.CoAttacker   => turnName + " <color=#" + ColorToHex(AccentTextColor) + ">spielt nach</color>",
+                _                     => turnName + " ist am Zug",
+            };
+
+            var action = ResolveActionHint(state, role, isMyTurn);
+            SetTurnBanner(
+                title:      isMyTurn ? roleLabelMine : roleLabelOther,
+                action:     action,
+                background: isMyTurn ? new Color(0.22f, 0.30f, 0.18f, 1f) : SurfaceRaisedColor,
+                accent:     isMyTurn ? AccentTextColor : MutedTextColor);
+        }
+
+        private enum TurnRole { Other, Defender, MainAttacker, CoAttacker }
+
+        private static TurnRole ResolveRoleForPlayer(GameState state, int playerId)
+        {
+            if (state.Round == null || playerId < 0) return TurnRole.Other;
+            if (playerId == state.Round.DefenderId) return TurnRole.Defender;
+            if (playerId == state.Round.AttackerId) return TurnRole.MainAttacker;
+            if (state.Round.AttackerOrder != null && state.Round.AttackerOrder.Contains(playerId))
+                return TurnRole.CoAttacker;
+            return TurnRole.Other;
+        }
+
+        private string ResolveActionHint(GameState state, TurnRole role, bool isMyTurn)
+        {
+            var tableCount  = state.Round != null ? state.Round.Table.Count : 0;
+            var attackLimit = state.Round != null ? state.Round.AttackLimit : 0;
+            var taking      = state.Round != null && state.Round.DefenderIsTaking;
+            var sufx        = "  (" + tableCount + "/" + attackLimit + ")";
+
+            switch (role)
+            {
+                case TurnRole.Defender:
+                    if (taking)
+                        return isMyTurn
+                            ? "Du nimmst die Karten — warte auf weitere Nachlegungen oder bis die Angreifer beenden"
+                            : "Verteidiger nimmt die Karten auf";
+                    return isMyTurn
+                        ? "Schlag jede Angriffskarte mit einer höheren der gleichen Farbe oder mit Trumpf — sonst Karten aufnehmen" + sufx
+                        : "Muss die Angriffskarten abwehren oder aufnehmen" + sufx;
+
+                case TurnRole.MainAttacker:
+                    if (tableCount == 0)
+                        return isMyTurn
+                            ? "Leg eine Angriffskarte aus deiner Hand"
+                            : "Wählt eine Angriffskarte";
+                    if (taking)
+                        return isMyTurn
+                            ? "Leg passende Karten nach (gleicher Rang) oder beende den Angriff" + sufx
+                            : "Kann nachlegen oder beenden" + sufx;
+                    return isMyTurn
+                        ? "Leg eine passende Karte nach (gleicher Rang) oder beende den Angriff" + sufx
+                        : "Legt nach oder beendet den Angriff" + sufx;
+
+                case TurnRole.CoAttacker:
+                    return isMyTurn
+                        ? "Leg eine Karte mit einem Rang nach, der bereits auf dem Tisch liegt — oder passe" + sufx
+                        : "Spielt nach oder passt" + sufx;
+
+                default:
+                    return "Warte auf den nächsten Zug";
+            }
+        }
+
+        private void SetTurnBanner(string title, string action, Color background, Color accent)
+        {
+            if (_turnBannerImage != null) _turnBannerImage.color = background;
+            if (_turnBannerTitleText != null)
+            {
+                _turnBannerTitleText.text  = title;
+                _turnBannerTitleText.color = accent;
+            }
+            if (_turnBannerActionText != null) _turnBannerActionText.text = action;
         }
 
         private void RefreshOpponents(GameState state)

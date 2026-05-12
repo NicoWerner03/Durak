@@ -10,6 +10,13 @@ namespace DurakGame.Core
         Completed = 2,
     }
 
+    public enum RoundOutcome
+    {
+        None        = 0,
+        DefenderWon = 1, // All attacks were beaten — cards go to the discard pile
+        DefenderTook = 2, // Defender picked up the table — keeps defending next round
+    }
+
     [Serializable]
     public class PlayerSeat
     {
@@ -144,6 +151,15 @@ namespace DurakGame.Core
         public RoundState Round = new RoundState();
         public MatchResult MatchResult = new MatchResult();
 
+        // Outcome of the round that just resolved (used by the UI to show a brief
+        // "defender beat all cards" / "defender took N cards" banner during the
+        // round-reveal phase). Each side computes this locally as intents apply,
+        // so the value does not need to travel over the snapshot wire format.
+        public RoundOutcome LastResolvedRoundOutcome = RoundOutcome.None;
+        public int LastResolvedRoundNumber = 0;
+        public int LastResolvedRoundDefenderId = -1;
+        public int LastResolvedRoundTakenCardCount = 0;
+
         public PlayerState GetPlayer(int playerId)
         {
             for (var i = 0; i < Players.Count; i++)
@@ -183,6 +199,10 @@ namespace DurakGame.Core
                 Players = new List<PlayerState>(),
                 Round = Round.Clone(),
                 MatchResult = MatchResult.Clone(),
+                LastResolvedRoundOutcome = LastResolvedRoundOutcome,
+                LastResolvedRoundNumber = LastResolvedRoundNumber,
+                LastResolvedRoundDefenderId = LastResolvedRoundDefenderId,
+                LastResolvedRoundTakenCardCount = LastResolvedRoundTakenCardCount,
             };
 
             for (var i = 0; i < Players.Count; i++)

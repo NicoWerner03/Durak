@@ -5,7 +5,8 @@ namespace DurakGame.Core
 {
     public class DurakGameRulesEngine : IGameRulesEngine
     {
-        private const int InitialHandSize = 6;
+        private const int InitialHandSize        = 6;
+        private const int FirstRoundAttackLimit  = 5;
         private const int MinPlayers = 2;
         private const int MaxPlayers = 4;
 
@@ -374,27 +375,33 @@ namespace DurakGame.Core
         {
             var nextRoundNumber = State.Round != null ? State.Round.RoundNumber + 1 : 1;
             var defender = State.GetPlayer(defenderId);
+            var defenderHand = defender != null ? defender.Hand.Count : 0;
 
             State.Round = new RoundState
             {
                 RoundNumber = nextRoundNumber,
                 AttackerId = attackerId,
                 DefenderId = defenderId,
-                DefenderInitialHandCount = defender != null ? defender.Hand.Count : 0,
-                AttackLimit = Math.Min(InitialHandSize, defender != null ? defender.Hand.Count : 0),
+                DefenderInitialHandCount = defenderHand,
+                AttackLimit = ComputeAttackLimit(nextRoundNumber, defenderHand),
                 AttackerOrder = BuildAttackerOrder(attackerId, defenderId),
                 Table = new List<TablePair>(),
                 ActiveAttackerIndex = 0,
                 DefenderIsTaking = false,
             };
 
-            if (State.Round.AttackLimit <= 0)
-            {
-                State.Round.AttackLimit = 1;
-            }
-
             _passedAttackers.Clear();
             _attackerCursor = 0;
+        }
+
+        // Classical Durak: each round is capped at the defender's starting hand
+        // size (max 6). The opening round of a match is additionally capped at 5
+        // — the traditional "first round" courtesy rule.
+        private static int ComputeAttackLimit(int roundNumber, int defenderHandCount)
+        {
+            var cap = roundNumber == 1 ? FirstRoundAttackLimit : InitialHandSize;
+            var limit = Math.Min(cap, defenderHandCount);
+            return limit > 0 ? limit : 1;
         }
 
         private List<int> BuildAttackerOrder(int attackerId, int defenderId)
@@ -633,11 +640,7 @@ namespace DurakGame.Core
             State.Round.AttackerId = intent.PlayerId;
             State.Round.DefenderId = nextDefenderId;
             State.Round.DefenderInitialHandCount = nextDefender.Hand.Count;
-            State.Round.AttackLimit = Math.Min(InitialHandSize, nextDefender.Hand.Count);
-            if (State.Round.AttackLimit <= 0)
-            {
-                State.Round.AttackLimit = 1;
-            }
+            State.Round.AttackLimit = ComputeAttackLimit(State.Round.RoundNumber, nextDefender.Hand.Count);
 
             State.Round.AttackerOrder = BuildAttackerOrder(State.Round.AttackerId, State.Round.DefenderId);
             State.Round.ActiveAttackerIndex = 0;
@@ -946,7 +949,7 @@ namespace DurakGame.Core
                 return false;
             }
 
-            var nextAttackLimit = Math.Min(InitialHandSize, nextDefender.Hand.Count);
+            var nextAttackLimit = ComputeAttackLimit(State.Round.RoundNumber, nextDefender.Hand.Count);
             return State.Round.Table.Count + 1 <= nextAttackLimit;
         }
 
@@ -1007,6 +1010,11 @@ namespace DurakGame.Core
                 }
             }
 
+            State.LastResolvedRoundOutcome = RoundOutcome.DefenderWon;
+            State.LastResolvedRoundNumber = State.Round.RoundNumber;
+            State.LastResolvedRoundDefenderId = State.Round.DefenderId;
+            State.LastResolvedRoundTakenCardCount = 0;
+
             var previousAttacker = State.Round.AttackerId;
             var nextAttackerCandidate = State.Round.DefenderId;
 
@@ -1035,14 +1043,22 @@ namespace DurakGame.Core
         {
             var currentDefender = State.Round.DefenderId;
             var defender = State.GetPlayer(State.Round.DefenderId);
+            var takenCardCount = 0;
             for (var i = 0; i < State.Round.Table.Count; i++)
             {
                 defender.Hand.Add(State.Round.Table[i].AttackCard);
+                takenCardCount++;
                 if (State.Round.Table[i].IsDefended)
                 {
                     defender.Hand.Add(State.Round.Table[i].DefenseCard);
+                    takenCardCount++;
                 }
             }
+
+            State.LastResolvedRoundOutcome = RoundOutcome.DefenderTook;
+            State.LastResolvedRoundNumber = State.Round.RoundNumber;
+            State.LastResolvedRoundDefenderId = currentDefender;
+            State.LastResolvedRoundTakenCardCount = takenCardCount;
 
             var currentAttacker = State.Round.AttackerId;
 
